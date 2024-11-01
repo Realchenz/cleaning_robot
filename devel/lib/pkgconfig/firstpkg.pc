@@ -1,0 +1,8 @@
+prefix=/home/ubuntu20/catkin_ws/devel
+
+Name: firstpkg
+Description: Description of firstpkg
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
