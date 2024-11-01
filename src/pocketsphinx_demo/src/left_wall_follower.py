@@ -8,6 +8,9 @@ from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 
 ## LEFT WALL FOLLOWER TEST FOR VOICE COMMAND
+# https://github.com/jeffliulab/cleaning_robot.git
+# git push -u origin main
+
 
 # BANG BANG CONTROL
 class LeftWallFollower:
