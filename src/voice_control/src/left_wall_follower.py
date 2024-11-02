@@ -39,10 +39,10 @@ class LeftWallFollower:
         Voice Command Callback Function
         """
         command = msg.data
-        if "no" in command:
+        if "stop" in command:
             print("Stop Command Received")
             self.running_state = False
-        elif "yes" in command:
+        elif "go" in command:
             print("Start Command Received")
             self.running_state = True
 
