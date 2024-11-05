@@ -131,8 +131,15 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/ubuntu20/catkin_ws/build/gtest/cmake_install.cmake")
-  include("/home/ubuntu20/catkin_ws/build/firstpkg/cmake_install.cmake")
-  include("/home/ubuntu20/catkin_ws/build/pocketsphinx_demo/cmake_install.cmake")
+  include("/home/ubuntu20/catkin_ws/build/turtlebot3_navigation/cmake_install.cmake")
+  include("/home/ubuntu20/catkin_ws/build/cleaning_bot/map_merge/cmake_install.cmake")
+  include("/home/ubuntu20/catkin_ws/build/turtlebot3_gazebo/cmake_install.cmake")
+  include("/home/ubuntu20/catkin_ws/build/turtlebot3_slam/cmake_install.cmake")
+  include("/home/ubuntu20/catkin_ws/build/voice_control/cmake_install.cmake")
+  include("/home/ubuntu20/catkin_ws/build/cleaning_bot/explore/cmake_install.cmake")
+  include("/home/ubuntu20/catkin_ws/build/frontier_exploration/cmake_install.cmake")
+  include("/home/ubuntu20/catkin_ws/build/cleaning_bot/robot_navigation/cmake_install.cmake")
+  include("/home/ubuntu20/catkin_ws/build/turtlebot3_description/cmake_install.cmake")
 
 endif()
 

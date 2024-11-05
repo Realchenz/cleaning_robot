@@ -1,0 +1,8 @@
+prefix=/home/ubuntu20/catkin_ws/devel
+
+Name: turtlebot3_slam
+Description: Description of turtlebot3_slam
+Version: 1.2.6
+Cflags: -I/home/ubuntu20/catkin_ws/src/turtlebot3_slam/include
+Libs: -L${prefix}/lib 
+Requires: roscpp sensor_msgs
