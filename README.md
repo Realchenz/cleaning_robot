@@ -2,7 +2,7 @@
 
 ## Proposal
 
-See attached_files/Robotics
+See proposal in /attached_files, as a pdf.
 
 ## Update: Week Oct.30 - Nov.5
 
