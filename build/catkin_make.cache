@@ -1,2 +1,0 @@
-cleaning_bot/explore:cleaning_bot/map_merge:cleaning_bot/robot_navigation:frontier_exploration:turtlebot3_description:turtlebot3_gazebo:turtlebot3_navigation:turtlebot3_slam:voice_control
--DCATKIN_DEVEL_PREFIX=/home/ubuntu20/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/ubuntu20/catkin_ws/install -G Unix Makefiles

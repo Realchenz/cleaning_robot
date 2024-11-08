@@ -1,8 +1,0 @@
-prefix=/home/ubuntu20/catkin_ws/devel
-
-Name: frontier_exploration
-Description: Description of frontier_exploration
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: actionlib actionlib_msgs costmap_2d geometry_msgs map_msgs move_base_msgs nav_msgs roscpp std_msgs std_srvs tf visualization_msgs
