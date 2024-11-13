@@ -11,6 +11,8 @@ def main():
     print("PRESS '1' TO START EXPLORATION")
     print("PRESS '2' TO STOP EXPLORATION")
     print("PRESS 'q' TO QUIT")
+    print("SPEAK 'START' TO START EXPLORATION")
+    print("SPEAK 'STOP' TO STOP EXPLORATION")
 
     rospy.loginfo("Control node is running. Press '1' to start exploration, '2' to stop, 'q' to quit.")
 
