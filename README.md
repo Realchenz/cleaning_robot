@@ -4,13 +4,11 @@
 
 ### Launch in Simulation (gazebo and explore)
 
-> roslaunch control_panel panel.launch (model:=x world:=y)
+> roslaunch control_panel panel.launch (world:=y)
 
-x defualt: burger, you can also choose waffle or waffle_pi
+y default: warehouse, you can also choose bookstore, house, and turtlebot_house.
 
-y default: warehouse, you can also choose bookstore, house, and turtlebot_house. 
-
-eg., you can input: `roslaunch control_panel panel.launch world:=bookstore model:=waffle_pi`
+eg., you can input: `roslaunch control_panel panel.launch world:=bookstore`
 
 it essentially includes following launch files or nodes:
 
