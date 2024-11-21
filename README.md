@@ -4,17 +4,15 @@
 
 ### Launch in Simulation (gazebo and explore)
 
-`roslaunch control_panel panel.launch`
+> roslaunch control_panel panel.launch (model:=x world:=y)
 
-(default: warehouse)
+x defualt: burger, you can also choose waffle or waffle_pi
 
-choose map: bookstore, house, hospital, turtlebot_house
+y default: warehouse, you can also choose bookstore, house, and turtlebot_house. 
 
-you can input:
+eg., you can input: `roslaunch control_panel panel.launch world:=bookstore model:=waffle_pi`
 
-`roslaunch control_panel panel.launch world:=xxx`
-
-it essentially includes:
+it essentially includes following launch files or nodes:
 
 #1 : Gazebo World Map
 roslaunch (depends on the parameter passing)
@@ -56,9 +54,6 @@ rosrun rviz rviz
 
 #5: launch teleop (only in test now, will be replaced soon)
 roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
-
-
-
 
 ## Proposal
 
