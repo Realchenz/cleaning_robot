@@ -1,0 +1,59 @@
+<launch>
+  <!-- #1: Gazebo -->
+  <!-- 启动 TurtleBot3 仿真环境，加载 house 世界 -->
+  <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_house.launch" />
+
+  <!-- #2: gmapping (SLAM) + RViz -->
+  <!-- 使用 gmapping 算法进行 SLAM 建图，同时启动 RViz 进行可视化 -->
+  <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch">
+    <arg name="slam_methods" value="gmapping" />
+  </include>
+
+  <!-- #3: move_base -->
+  <!-- 启动 move_base 进行导航功能 -->
+  <!-- 注意：如果启用了 #6（move_base controller），不要运行此部分 -->
+  <!--
+  <include file="$(find turtlebot3_navigation)/launch/move_base.launch" />
+  -->
+
+  <!-- #4: Explore_Lite -->
+  <!-- 启动 Explore_Lite 进行自动探索功能 -->
+  <!-- 注意：如果启用了 #7（explore_controller），不要运行此部分 -->
+  <!--
+  <include file="$(find explore_lite)/launch/explore.launch" />
+  -->
+
+  <!-- #5: voice_vosk -->
+  <!-- 启动 voice_vosk 节点，用于语音识别 $(find control_panel)/src/-->
+  <node pkg="control_panel" type="voice_vosk.py" 
+    name="voice_vosk" output="screen" 
+    launch-prefix="xterm -e"/>
+
+  
+
+  <!-- #6: move_base controller -->
+  <!-- 使用 move_base_controller.py 脚本控制 move_base 功能 -->
+  <!-- 注意：需要和 #7 explore_controller、#8 control_panel 一起运行 $(find control_panel)/src/-->
+  <node pkg="control_panel" type="move_base_controller.py" 
+    name="move_base_controller" output="screen" 
+    launch-prefix="xterm -e"/>
+
+
+  <!-- #7: explore_controller -->
+  <!-- 使用 explore_controller.py 脚本控制 Explore_Lite 功能 -->
+  <!-- 注意：需要和 #6 move_base_controller、#8 control_panel 一起运行 $(find control_panel)/src/-->
+  <node pkg="control_panel" type="explore_controller.py" 
+    name="explore_controller" output="screen" 
+    launch-prefix="xterm -e"/>
+
+
+  <!-- #8: control_panel -->
+  <!-- 使用 control_panel.py 脚本作为主控制面板，通过语音或键盘指令控制机器人 -->
+  <!-- 注意：需要和 #6 move_base_controller、#7 explore_controller 一起运行 $(find control_panel)/src/-->
+  <node pkg="control_panel" type="control_panel.py" 
+    name="control_panel" output="screen"  
+    launch-prefix="xterm -e"/>
+    <!-- NOTE: need install xterm: sudo apt-get install xterm-->
+
+
+</launch>

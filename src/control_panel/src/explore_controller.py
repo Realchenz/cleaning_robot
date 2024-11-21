@@ -9,7 +9,7 @@ class ExploreController:
     def __init__(self):
         rospy.init_node("explore_controller", anonymous=True)
         self.explore_process = None
-        rospy.Subscriber("/control_input", String, self.control_callback)
+        rospy.Subscriber("/control_explore", String, self.control_callback)
         rospy.loginfo("Explore Controller is running. Waiting for commands...")
 
     def control_callback(self, msg):

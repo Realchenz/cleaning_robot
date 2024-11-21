@@ -9,14 +9,14 @@ class MoveBaseController:
     def __init__(self):
         rospy.init_node("move_base_controller", anonymous=True)
         self.move_base_process = None
-        rospy.Subscriber("/control_input", String, self.control_callback)
+        rospy.Subscriber("/control_move_base", String, self.control_callback)
         rospy.loginfo("Move Base Controller is running. Waiting for commands...")
 
     def control_callback(self, msg):
         # Check the command from the control panel
-        if msg.data == "start_explore":
+        if msg.data == "start_move_base":
             self.start_move_base()
-        elif msg.data == "stop_explore":
+        elif msg.data == "stop_move_base":
             self.stop_move_base()
         elif msg.data == "quit":
             rospy.loginfo("Exiting Move Base Controlstop_move_baseler.")
