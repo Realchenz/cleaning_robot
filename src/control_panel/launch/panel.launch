@@ -1,7 +1,14 @@
 <launch>
-  <!-- #1: Gazebo -->
+  <!-- #1: Gazebo (Turtlebot3 House Map) -->
   <!-- 启动 TurtleBot3 仿真环境，加载 house 世界 -->
+  <!--
   <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_house.launch" />
+  -->
+
+  <!-- #1: Gazebo (Warehouse Map)-->
+  <!-- 启动仓库环境和机器人 -->
+  <include file="$(find sweep)/launch/warehouse_sim.launch" />
+
 
   <!-- #2: gmapping (SLAM) + RViz -->
   <!-- 使用 gmapping 算法进行 SLAM 建图，同时启动 RViz 进行可视化 -->
