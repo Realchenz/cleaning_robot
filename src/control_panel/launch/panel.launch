@@ -19,8 +19,6 @@
 
 
 
-
-
   <!-- #2: gmapping (SLAM) + RViz -->
   <!-- 使用 gmapping 算法进行 SLAM 建图，同时启动 RViz 进行可视化 -->
   <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch">
@@ -72,6 +70,15 @@
     name="control_panel" output="screen"  
     launch-prefix="xterm -e"/>
     <!-- NOTE: need install xterm: sudo apt-get install xterm-->
+
+
+
+  <!-- #S1: AMCL controller-->
+  <!-- NOTE: You must turn off #2 SLAM before open #S1 AMCL -->
+
+
+  <!-- #S2: Sweep controller-->
+  <!-- NOTE: You must turn off #4/#7 Explore_Lite before open #S2 Sweep COntroller-->
 
 
 </launch>
