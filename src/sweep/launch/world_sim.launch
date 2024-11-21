@@ -3,7 +3,7 @@
 ### (default: warehouse)
 ### 启动书店地图    roslaunch sweep warehouse_sim.launch world:=bookstore
 ### 启动小房子地图    roslaunch sweep warehouse_sim.launch world:=house
-### 启动医院地图    roslaunch sweep warehouse_sim.launch world:=hospital
+### (unloaded yet, do not use this map now)启动医院地图    roslaunch sweep warehouse_sim.launch world:=hospital
 ### start turtlebot3_house map
 -->
 
@@ -14,15 +14,53 @@
     <!-- 添加世界选择参数 -->
     <arg name="world" default="warehouse" doc="world type [warehouse, bookstore, house]"/>
     
-    <!-- 启动 Gazebo 并加载仓库世界 -->
-    <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find aws_robomaker_small_warehouse_world)/worlds/small_warehouse.world"/>
-        <arg name="paused" value="false"/>
-        <arg name="use_sim_time" value="true"/>
-        <arg name="gui" value="true"/>
-        <arg name="headless" value="false"/>
-        <arg name="debug" value="false"/>
-    </include>
+    <!-- 启动 Gazebo 并加载 warehouse -->
+    <group if="$(eval arg('world') == 'warehouse')">
+        <include file="$(find gazebo_ros)/launch/empty_world.launch">
+            <arg name="world_name" value="$(find aws_robomaker_small_warehouse_world)/worlds/small_warehouse.world"/>
+            <arg name="paused" value="false"/>
+            <arg name="use_sim_time" value="true"/>
+            <arg name="gui" value="true"/>
+            <arg name="headless" value="false"/>
+            <arg name="debug" value="false"/>
+        </include>
+    </group>
+
+    <!-- 启动 Gazebo 并加载 warehouse -->
+    <group if="$(eval arg('world') == 'bookstore')">
+        <include file="$(find gazebo_ros)/launch/empty_world.launch">
+            <arg name="world_name" value="$(find aws_robomaker_bookstore_world)/worlds/bookstore.world"/>
+            <arg name="paused" value="false"/>
+            <arg name="use_sim_time" value="true"/>
+            <arg name="gui" value="true"/>
+            <arg name="headless" value="false"/>
+            <arg name="debug" value="false"/>
+        </include>
+    </group>
+
+    <!-- 启动 Gazebo 并加载 warehouse -->
+    <group if="$(eval arg('world') == 'house')">
+        <include file="$(find gazebo_ros)/launch/empty_world.launch">
+            <arg name="world_name" value="$(find aws_robomaker_small_house_world)/worlds/small_house.world"/>
+            <arg name="paused" value="false"/>
+            <arg name="use_sim_time" value="true"/>
+            <arg name="gui" value="true"/>
+            <arg name="headless" value="false"/>
+            <arg name="debug" value="false"/>
+        </include>
+    </group>
+
+
+
+
+
+
+
+
+
+    <!--############################################-->
+
+
 
 
     <!-- 加载 burger 机器人模型到参数服务器 -->

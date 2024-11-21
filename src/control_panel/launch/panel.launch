@@ -1,5 +1,5 @@
 <launch>
-  <!-- GAZEBO -->
+  <!-- #1: GAZEBO -->
   <!-- 添加世界选择参数 -->
   <arg name="world" default="warehouse" doc="world type [warehouse, bookstore, house, turtlebot_house]"/>
 
@@ -9,12 +9,16 @@
     <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_house.launch"/>
   </group>
 
+  <!-- 针对其他世界类型 -->
   <group unless="$(eval arg('world') == 'turtlebot_house')">
-    <!-- 启动其他环境 -->
+    <!-- 动态传递 world 参数 -->
     <include file="$(find sweep)/launch/world_sim.launch">
       <arg name="world" value="$(arg world)"/>
     </include>
   </group>
+
+
+
 
 
   <!-- #2: gmapping (SLAM) + RViz -->
