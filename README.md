@@ -2,18 +2,35 @@
 
 ## Launch and Files Introduction
 
-### Launch in Simulation
+### Launch in Warehouse Simulation (Sweep)
+
+#1：启动仓库环境和机器人
+roslaunch sweep warehouse_sim.launch
+
+#2：启动SLAM
+roslaunch turtlebot3_slam turtlebot3_slam.launch
+
+#3：启动导航
+roslaunch turtlebot3_navigation move_base.launch
+
+#4：启动RViz（可选）
+rosrun rviz rviz
+
+#5: Teleop (only in test now, will be replaced soon)
+roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
+
+### Launch in Simulation (gazebo_house and explore)
 
 `roslaunch control_panel panel.launch` includes:
 
-#1 : Gazebo 
+#1 : Gazebo
 roslaunch turtlebot3_gazebo turtlebot3_house.launch
 
-#2 : gmapping(SLAM) + RViz 
-roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping 
+#2 : gmapping(SLAM) + RViz
+roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping
 
 #3 : move_base (do not run if run #6)
-roslaunch turtlebot3_navigation move_base.launch 
+roslaunch turtlebot3_navigation move_base.launch
 
 #4: Explore_Lite (do not run if run #7)
 roslaunch explore_lite explore.launch
@@ -29,12 +46,6 @@ rosrun control_panel_voice explore_controller.py
 
 #8: control_panel
 rosrun control_panel_voice control_panel.py
-
-
-
-
-
-
 
 ## Proposal
 

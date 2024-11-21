@@ -9,6 +9,9 @@ import sys
 import select
 import termios
 import tty
+import subprocess
+import time
+import os
 
 class ControlPanel:
     def __init__(self):
@@ -32,12 +35,13 @@ class ControlPanel:
 
     def print_instructions(self):
         """打印控制面板说明"""
-        print("============= CONTROL PANEL =============")
-        print("KEYBOARD CONTROL:")
+        print("CONTROL PANEL")
+        print("=====KEYBOARD CONTROL=====")
         print("PRESS '1' TO START EXPLORATION")
         print("PRESS '2' TO STOP EXPLORATION AND STOP THE ROBOT")
+        print("PRESS 's' TO SAVE THE MAP")
         print("PRESS 'q' TO QUIT")
-        print("VOICE CONTROL:")
+        print("=====VOICE CONTROL=====")
         print("SPEAK 'START' TO START EXPLORATION")
         print("SPEAK 'STOP' TO STOP EXPLORATION")
         print("SPEAK 'QUIT PROGRAM' TO EXIT THE PROGRAM")
@@ -84,6 +88,16 @@ class ControlPanel:
         self.cancel_pub.publish(cancel_msg)
         rospy.loginfo("Published: cancel navigation goal to stop move_base")
 
+    def save_map(self):
+        """保存地图"""
+        map_path = "~/clean_robot_119/cleaning_robot/maps/map_" + time.strftime("%Y%m%d_%H%M%S")
+        try:
+            subprocess.call(["rosrun", "map_server", "map_saver", "-f", os.path.expanduser(map_path)])
+            rospy.loginfo(f"Map saved to {map_path}")
+        except Exception as e:
+            rospy.logerr(f"Failed to save map: {e}")
+
+
     def shutdown(self):
         """停止程序"""
         rospy.loginfo("Shutting down the control panel...")
@@ -119,6 +133,10 @@ class ControlPanel:
                 rospy.loginfo("Key 'q' pressed.")
                 self.shutdown()
                 break
+
+            elif key == 's': 
+                rospy.loginfo("Key 's' pressed.")
+                self.save_map()
 
             rospy.sleep(0.1)  # 降低 CPU 占用率
 
