@@ -2,29 +2,22 @@
 
 ## Launch and Files Introduction
 
-### Launch in Warehouse Simulation (Sweep)
+### Launch in Simulation (gazebo and explore)
 
-#1：启动仓库环境和机器人
-roslaunch sweep warehouse_sim.launch
+`roslaunch control_panel panel.launch`
 
-#2：启动SLAM
-roslaunch turtlebot3_slam turtlebot3_slam.launch
+(default: warehouse)
 
-#3：启动导航
-roslaunch turtlebot3_navigation move_base.launch
+choose map: bookstore, house, hospital, turtlebot_house
 
-#4：启动RViz（可选）
-rosrun rviz rviz
+you can input:
 
-#5: Teleop (only in test now, will be replaced soon)
-roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
+`roslaunch control_panel panel.launch world:=xxx`
 
-### Launch in Simulation (gazebo_house and explore)
+it essentially includes:
 
-`roslaunch control_panel panel.launch` includes:
-
-#1 : Gazebo
-roslaunch turtlebot3_gazebo turtlebot3_house.launch
+#1 : Gazebo World Map
+roslaunch (depends on the parameter passing)
 
 #2 : gmapping(SLAM) + RViz
 roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping
@@ -46,6 +39,26 @@ rosrun control_panel_voice explore_controller.py
 
 #8: control_panel
 rosrun control_panel_voice control_panel.py
+
+### Other related: (for test or other usage)
+
+#1：warehouse gazebo map only (with turtlebot3)
+roslaunch sweep world_sim.launch
+
+#2：launch SLAM only
+roslaunch turtlebot3_slam turtlebot3_slam.launch
+
+#3：launch navigation only
+roslaunch turtlebot3_navigation move_base.launch
+
+#4：run RViz only
+rosrun rviz rviz
+
+#5: launch teleop (only in test now, will be replaced soon)
+roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
+
+
+
 
 ## Proposal
 
