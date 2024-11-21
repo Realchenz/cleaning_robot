@@ -1,12 +1,21 @@
 <launch>
+  <!-- GAZEBO -->
   <!-- 添加世界选择参数 -->
   <arg name="world" default="warehouse" doc="world type [warehouse, bookstore, house, turtlebot_house]"/>
 
-  <!-- #1: Gazebo -->
-  <!-- 启动仓库环境和机器人，传递 world 参数 -->
-  <include file="$(find sweep)/launch/world_sim.launch">
-    <arg name="world" value="$(arg world)"/>
-  </include>
+  <!-- 条件启动 -->
+  <group if="$(eval arg('world') == 'turtlebot_house')">
+    <!-- 启动 turtlebot3_gazebo 的 turtlebot3_house.launch -->
+    <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_house.launch"/>
+  </group>
+
+  <group unless="$(eval arg('world') == 'turtlebot_house')">
+    <!-- 启动其他环境 -->
+    <include file="$(find sweep)/launch/world_sim.launch">
+      <arg name="world" value="$(arg world)"/>
+    </include>
+  </group>
+
 
   <!-- #2: gmapping (SLAM) + RViz -->
   <!-- 使用 gmapping 算法进行 SLAM 建图，同时启动 RViz 进行可视化 -->

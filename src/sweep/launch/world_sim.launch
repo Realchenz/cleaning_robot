@@ -12,37 +12,25 @@
     <arg name="model" default="burger" doc="model type [burger, waffle, waffle_pi]"/>
     
     <!-- 添加世界选择参数 -->
-    <arg name="world" default="warehouse" doc="world type [warehouse, bookstore, house, turtlebot_house]"/>
+    <arg name="world" default="warehouse" doc="world type [warehouse, bookstore, house]"/>
     
-    <!-- 根据参数选择世界文件 -->
-    <group if="$(eval world != 'turtlebot_house')">
-        <!-- AWS worlds -->
-        <arg name="world_file" value="$(find aws-robomaker-small-warehouse-world)/worlds/small_warehouse.world" if="$(eval world == 'warehouse')"/>
-        <arg name="world_file" value="$(find aws-robomaker-bookstore-world)/worlds/bookstore.world" if="$(eval world == 'bookstore')"/>
-        <arg name="world_file" value="$(find aws-robomaker-small-house-world)/worlds/small_house.world" if="$(eval world == 'house')"/>
+    <!-- 启动 Gazebo 并加载仓库世界 -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find aws_robomaker_small_warehouse_world)/worlds/small_warehouse.world"/>
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
+    </include>
 
-        <!-- 启动 Gazebo 并加载选择的世界 -->
-        <include file="$(find gazebo_ros)/launch/empty_world.launch">
-            <arg name="world_name" value="$(arg world_file)"/>
-            <arg name="paused" value="false"/>
-            <arg name="use_sim_time" value="true"/>
-            <arg name="gui" value="true"/>
-            <arg name="headless" value="false"/>
-            <arg name="debug" value="false"/>
-        </include>
 
-        <!-- 加载机器人模型到参数服务器 -->
-        <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
-        
-        <!-- 在 Gazebo 中生成机器人模型 -->
-        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
-              args="-urdf -model turtlebot3_burger 
-                    -x 0 -y 0 -z 0 
-                    -param robot_description" />
-    </group>
+    <!-- 加载 burger 机器人模型到参数服务器 -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
 
-    <!-- TurtleBot3 House -->
-    <group if="$(eval world == 'turtlebot_house')">
-        <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_house.launch"/>
-    </group>
+    <!-- 在 Gazebo 中生成机器人模型，设置初始位置 -->
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
+          args="-urdf -model turtlebot3_burger 
+                -x 0 -y 0 -z 0 
+                -param robot_description" />
 </launch>
