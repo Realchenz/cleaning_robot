@@ -25,6 +25,13 @@ class ControlPanel:
         self.velocity_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
         self.cancel_pub = rospy.Publisher("/move_base/cancel", GoalID, queue_size=10)
         
+        self.control_gmapping_pub = rospy.Publisher("/control_gmapping", String, queue_size=10)
+        self.control_amcl_pub = rospy.Publisher("/control_amcl", String, queue_size=10)
+
+
+
+
+
         # 订阅语音命令
         rospy.Subscriber("voice_commands", String, self.voice_callback)
 
@@ -36,15 +43,18 @@ class ControlPanel:
     def print_instructions(self):
         """打印控制面板说明"""
         print("CONTROL PANEL")
-        print("=====KEYBOARD CONTROL=====")
-        print("PRESS '1' TO START EXPLORATION")
-        print("PRESS '2' TO STOP EXPLORATION AND STOP THE ROBOT")
+        print("=====EXPLORE CONTROL=====")
+        print("INSTRUCTIONS:")
+        print("If you want to build a map")
+        print("PRESS '6' TO START SLAM")
+        print("PRESS '1' or SPEAK 'START' TO START EXPLORATION AND MOVEBASE")
+        print("PRESS '2' or SPEAK 'STOP' TO STOP EXPLORATION, MOVEBASE AND STOP THE ROBOT")
         print("PRESS 's' TO SAVE THE MAP")
-        print("PRESS 'q' TO QUIT")
-        print("=====VOICE CONTROL=====")
-        print("SPEAK 'START' TO START EXPLORATION")
-        print("SPEAK 'STOP' TO STOP EXPLORATION")
-        print("SPEAK 'QUIT PROGRAM' TO EXIT THE PROGRAM")
+        print("PRESS 'q' or SPEAK 'QUIT PROGRAM' TO EXIT THE PROGRAM")
+        print("=====SWEEP MODULE======")
+        print("PRESS '7' TO STOP SLAM")
+        print("PRESS '8' TO START AMCL AND MOVEBASE")
+        print("PRESS '9' TO STOP AMCL AND MOVEBASE")
 
     def voice_callback(self, msg):
         """语音命令回调函数"""
@@ -137,6 +147,23 @@ class ControlPanel:
             elif key == 's': 
                 rospy.loginfo("Key 's' pressed.")
                 self.save_map()
+
+            elif key == '6':  # 按键 '6' 启动 gmapping
+                rospy.loginfo("Key '6' pressed. Starting gmapping.")
+                self.control_gmapping_pub.publish("start_gmapping")
+
+            elif key == '7':  # 按键 '7' 停止 gmapping
+                rospy.loginfo("Key '7' pressed. Stopping gmapping.")
+                self.control_gmapping_pub.publish("stop_gmapping")
+
+            elif key == '8':  # 按键 '8' 启动 AMCL 
+                rospy.loginfo("Key '8' pressed. Starting AMCL.")
+                self.control_amcl_pub.publish("start_amcl")
+
+            elif key == '9':  # 按键 '9' 停止 AMCL 
+                rospy.loginfo("Key '9' pressed. Stopping AMCL.")
+                self.control_amcl_pub.publish("stop_amcl")
+
 
             rospy.sleep(0.1)  # 降低 CPU 占用率
 

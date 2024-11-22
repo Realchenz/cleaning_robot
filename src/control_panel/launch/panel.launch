@@ -21,9 +21,17 @@
 
   <!-- #2: gmapping (SLAM) + RViz -->
   <!-- 使用 gmapping 算法进行 SLAM 建图，同时启动 RViz 进行可视化 -->
+  <!-- Use controller to control, turn off auto launch -->
+  <!--
   <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch">
     <arg name="slam_methods" value="gmapping" />
   </include>
+  -->
+
+  <!-- #2 (controller version) gmapping (SLAM) + RViz -->
+    <node pkg="control_panel" type="SLAM_controller.py" 
+    name="SLAM_controller" output="screen" 
+    launch-prefix="gnome-terminal --"/>
 
   <!-- #3: move_base -->
   <!-- 启动 move_base 进行导航功能 -->
@@ -43,7 +51,7 @@
   <!-- 启动 voice_vosk 节点，用于语音识别 $(find control_panel)/src/-->
   <node pkg="control_panel" type="voice_vosk.py" 
     name="voice_vosk" output="screen" 
-    launch-prefix="xterm -e"/>
+    launch-prefix="gnome-terminal --"/>
 
   
 
@@ -52,7 +60,7 @@
   <!-- 注意：需要和 #7 explore_controller、#8 control_panel 一起运行 $(find control_panel)/src/-->
   <node pkg="control_panel" type="move_base_controller.py" 
     name="move_base_controller" output="screen" 
-    launch-prefix="xterm -e"/>
+    launch-prefix="gnome-terminal --"/>
 
 
   <!-- #7: explore_controller -->
@@ -60,7 +68,7 @@
   <!-- 注意：需要和 #6 move_base_controller、#8 control_panel 一起运行 $(find control_panel)/src/-->
   <node pkg="control_panel" type="explore_controller.py" 
     name="explore_controller" output="screen" 
-    launch-prefix="xterm -e"/>
+    launch-prefix="gnome-terminal --"/>
 
 
   <!-- #8: control_panel -->
@@ -68,13 +76,16 @@
   <!-- 注意：需要和 #6 move_base_controller、#7 explore_controller 一起运行 $(find control_panel)/src/-->
   <node pkg="control_panel" type="control_panel.py" 
     name="control_panel" output="screen"  
-    launch-prefix="xterm -e"/>
+    launch-prefix="gnome-terminal --"/>
     <!-- NOTE: need install xterm: sudo apt-get install xterm-->
 
 
 
   <!-- #S1: AMCL controller-->
   <!-- NOTE: You must turn off #2 SLAM before open #S1 AMCL -->
+    <node pkg="control_panel" type="AMCL_controller.py" 
+    name="AMCL_controller" output="screen" 
+    launch-prefix="gnome-terminal --"/>
 
 
   <!-- #S2: Sweep controller-->

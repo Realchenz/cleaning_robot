@@ -1,6 +1,3 @@
-<!--UPDATE TIME: 11:35 AM-->
-<!-- THIS MAP ELIMINATES ALL CHAIRS-->
-
 <?xml version='1.0' encoding='utf-8'?>
 <sdf version="1.6">
   <world name="default">
@@ -34,10 +31,23 @@
     </spherical_coordinates>
 
 
+	<model name="AirConditionerC_01_001">
+        <include>
+            <uri>model://aws_robomaker_retail_AirConditionerC_01</uri>
+        </include>
+        <pose frame="">7.458202 1.422453 3.290944 0 -0 -1.564217</pose>
+	</model>
+
+
+	<model name="Bicycle_01_001">
+        <include>
+            <uri>model://aws_robomaker_retail_Bicycle_01</uri>
+        </include>
+        <pose frame="">5.681248 -2.242451 0.931246 0.000002 -0.000024 0</pose>
+	</model>
 
 
 
-    <!--
 	<model name="BookE_01_001">
         <include>
             <uri>model://aws_robomaker_retail_BookE_01</uri>
@@ -252,7 +262,7 @@
         </include>
         <pose frame="">-2.357369 3.346395 1.054941 0 0 1.568157</pose>
 	</model>
-    -->
+
 
 	<model name="BookF_01_001">
         <include>
@@ -450,6 +460,119 @@
 	</model>
     -->
 
+       <model name="ChairB_01_001">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">6.6439554 -0.210457 0.0220513 0 0.006174 0.000088</pose>
+	</model>
+
+       <model name="ChairB_01_002">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">6.6439554 -1.621987 0.0220513 0 0.006174 0.000088</pose>
+	</model>
+
+       <model name="ChairB_01_003">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">6.6439554 -3.246633 0.0220513 0 0.006174 0.000088</pose>
+	</model>
+
+       <model name="ChairB_01_004">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">6.6439554 -4.681600 0.0220513 0 0.006174 0.000088</pose>
+	</model>
+
+
+       <model name="ChairB_01_005">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">4.653303 -0.210457 0.0220513 0 0.006174 0.000088</pose>
+	</model>
+
+       <model name="ChairB_01_006">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">4.653303 -1.621987 0.0220513 0 0.006174 0.000088</pose>
+	</model>
+
+       <model name="ChairB_01_007">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">4.653303 -3.246633 0.0220513 0 0.006174 0.000088</pose>
+	</model>
+
+       <model name="ChairB_01_008">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">4.653303 -4.681600 0.0220513 0 0.006174 0.000088</pose>
+	</model>
+
+       <model name="ChairB_01_009">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">-4.602947 5.021919 0.030259 -0.001073 -0.001935 0.001439</pose>
+	</model>
+
+       <model name="ChairB_01_010">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">-6.109693 5.026245 0.027274 -0.001422 -0.002424 0.000176</pose>
+	</model>
+
+       <model name="ChairB_01_011">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">-4.616166 3.276753 0.0321 -0.001068 -0.001938 0.000117</pose>
+	</model>
+
+       <model name="ChairB_01_012">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">-6.090762 3.293415 0.029216 -0.001072 -0.001936 0.000119</pose>
+	</model>
+
+       <model name="ChairB_01_013">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">-4.589604 1.815766 0.032459 0.001362 -0.001944 0.000145</pose>
+	</model>
+
+       <model name="ChairB_01_014">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">-6.130103 1.798599 0.02944 0.001362 -0.001946 0.000105</pose>
+	</model>
+
+       <model name="ChairB_01_015">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">-4.607505 0.203637 0.030218 0.001362 -0.001944 0.000163</pose>
+	</model>
+
+       <model name="ChairB_01_016">
+        <include>
+            <uri>model://aws_robomaker_retail_ChairB_01</uri>
+        </include>
+        <pose frame="">-6.121492 0.195027 0.027272 0.001357 -0.001950 0.003291</pose>
+	</model>
+
 	<model name="ColumnB_01_002">
         <include>
             <uri>model://aws_robomaker_retail_ColumnB_01</uri>
@@ -457,14 +580,12 @@
         <pose frame="">-4.076233 -6.860710 0.017511 0.001895 -0.000628 -0.003755</pose>
 	</model>
 
-    <!--
 	<model name="Computer_01_001">
         <include>
             <uri>model://aws_robomaker_retail_Computer_01</uri>
         </include>
         <pose frame="">0.284724 4.951315 1.08517 -0.004006 -0.000097 -0.010660</pose>
 	</model>
-    -->
 
 	<model name="SecurityCamera_01_001">
         <include>
@@ -480,16 +601,13 @@
         <pose frame="">-3.904507 3.590531 1.037756 0 0 3.050913</pose>
 	</model>
 
-    <!--
 	<model name="InfoDesk_01_001">
         <include>
          <uri>model://aws_robomaker_retail_InfoDesk_01</uri>
         </include>
         <pose frame="">1.010668 5.032576 0.011585 -0.006739 0.005110 -0.025146</pose>
 	</model>
-    -->
 
-    <!--
 	<model name="DeskB_01_001">
         <include>
          <uri>model://aws_robomaker_retail_DeskB_01</uri>
@@ -503,7 +621,6 @@
         </include>
         <pose frame="">-5.400709 2.580536 -0.181282 0 -0 0</pose>
 	</model>
-    -->
 
 	<model name="DeskA_01_001">
         <include>
@@ -539,7 +656,6 @@
         </include>
         <pose frame="">2.298197 0.861754 0.014883 -0.000002 0.003451 0.000024</pose>
 	</model>
-    
 
 	<model name="DoorB_01_001">
         <include>
@@ -852,7 +968,6 @@
         <pose frame="">0 0 -0.281282 0 -0 0</pose>
 	</model>
 
-    <!--
 	<model name="LightA_01_001">
         <include>
             <uri>model://aws_robomaker_retail_LightA_01</uri>
@@ -887,9 +1002,7 @@
         </include>
         <pose frame="">-3.271001 2.685925 3.150328 0 -0 0</pose>
 	</model>
-    -->
 
-    <!--
 	<model name="MagicCube_01_001">
         <include>
             <uri>model://aws_robomaker_retail_MagicCube_01</uri>
@@ -910,7 +1023,6 @@
         </include>
         <pose frame="">-3.146512 2.928458 1.035654 0 0 0</pose>
 	</model>
-    -->
 
 
 

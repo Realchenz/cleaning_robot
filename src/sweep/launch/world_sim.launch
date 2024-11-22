@@ -26,7 +26,7 @@
         </include>
     </group>
 
-    <!-- 启动 Gazebo 并加载 warehouse -->
+    <!-- 启动 Gazebo 并加载 bookstore -->
     <group if="$(eval arg('world') == 'bookstore')">
         <include file="$(find gazebo_ros)/launch/empty_world.launch">
             <arg name="world_name" value="$(find aws_robomaker_bookstore_world)/worlds/bookstore.world"/>
@@ -38,7 +38,7 @@
         </include>
     </group>
 
-    <!-- 启动 Gazebo 并加载 warehouse -->
+    <!-- 启动 Gazebo 并加载 house -->
     <group if="$(eval arg('world') == 'house')">
         <include file="$(find gazebo_ros)/launch/empty_world.launch">
             <arg name="world_name" value="$(find aws_robomaker_small_house_world)/worlds/small_house.world"/>
