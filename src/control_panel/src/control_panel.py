@@ -53,8 +53,8 @@ class ControlPanel:
         print("PRESS 'q' or SPEAK 'QUIT PROGRAM' TO EXIT THE PROGRAM")
         print("=====SWEEP MODULE======")
         print("PRESS '7' TO STOP SLAM")
-        print("PRESS '8' TO START AMCL AND MOVEBASE")
-        print("PRESS '9' TO STOP AMCL AND MOVEBASE")
+        print("PRESS '8' TO START AMCL") # do not use move_base anymore, instead use DIY algorithm
+        print("PRESS '9' TO STOP AMCL")
 
     def voice_callback(self, msg):
         """语音命令回调函数"""

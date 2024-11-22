@@ -5,6 +5,9 @@ import subprocess
 import signal
 from std_msgs.msg import String
 
+############
+# MAP PATH NEEDS MODIFIED WHEN YOU CHANGE THE MAP
+
 class AMCLController:
     def __init__(self):
         # 初始化 ROS 节点
@@ -12,6 +15,9 @@ class AMCLController:
         
         # 存储 AMCL 进程
         self.amcl_process = None
+
+        # 指定地图文件的绝对路径
+        self.map_file = "/home/jeff/clean_robot_119/cleaning_robot/src/sweep/src/maps/map_20241121_164920.yaml"
         
         # 订阅控制话题
         rospy.Subscriber("/control_amcl", String, self.control_callback)
@@ -32,9 +38,13 @@ class AMCLController:
 
     def start_amcl(self):
         if self.amcl_process is None:
-            rospy.loginfo("Starting AMCL...")
-            # 启动 amcl.launch 子进程
-            self.amcl_process = subprocess.Popen(["roslaunch", "turtlebot3_navigation", "amcl.launch"])
+            rospy.loginfo(f"Starting AMCL with map file: {self.map_file}")
+            # 启动 amcl.launch 子进程并指定地图文件
+            self.amcl_process = subprocess.Popen(
+                ["roslaunch", "turtlebot3_navigation", "amcl.launch", f"map_file:={self.map_file}"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
         else:
             rospy.loginfo("AMCL is already running.")
 

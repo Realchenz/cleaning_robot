@@ -31,7 +31,8 @@
   <!-- #2 (controller version) gmapping (SLAM) + RViz -->
     <node pkg="control_panel" type="SLAM_controller.py" 
     name="SLAM_controller" output="screen" 
-    launch-prefix="gnome-terminal --"/>
+    launch-prefix="xterm -e"/>  
+    <!--note: "gnome-terminal (slash)-(slash)-" or "xterm -e"-->
 
   <!-- #3: move_base -->
   <!-- 启动 move_base 进行导航功能 -->
@@ -51,7 +52,7 @@
   <!-- 启动 voice_vosk 节点，用于语音识别 $(find control_panel)/src/-->
   <node pkg="control_panel" type="voice_vosk.py" 
     name="voice_vosk" output="screen" 
-    launch-prefix="gnome-terminal --"/>
+    launch-prefix="xterm -e"/>
 
   
 
@@ -60,7 +61,7 @@
   <!-- 注意：需要和 #7 explore_controller、#8 control_panel 一起运行 $(find control_panel)/src/-->
   <node pkg="control_panel" type="move_base_controller.py" 
     name="move_base_controller" output="screen" 
-    launch-prefix="gnome-terminal --"/>
+    launch-prefix="xterm -e"/>
 
 
   <!-- #7: explore_controller -->
@@ -68,7 +69,7 @@
   <!-- 注意：需要和 #6 move_base_controller、#8 control_panel 一起运行 $(find control_panel)/src/-->
   <node pkg="control_panel" type="explore_controller.py" 
     name="explore_controller" output="screen" 
-    launch-prefix="gnome-terminal --"/>
+    launch-prefix="xterm -e"/>
 
 
   <!-- #8: control_panel -->
@@ -85,7 +86,7 @@
   <!-- NOTE: You must turn off #2 SLAM before open #S1 AMCL -->
     <node pkg="control_panel" type="AMCL_controller.py" 
     name="AMCL_controller" output="screen" 
-    launch-prefix="gnome-terminal --"/>
+    launch-prefix="xterm -e"/>
 
 
   <!-- #S2: Sweep controller-->
