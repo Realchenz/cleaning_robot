@@ -1,5 +1,26 @@
 #!/usr/bin/env python3
 
+#
+#
+#
+# LAST UPDATE TIME: Nov 22, 2024
+# FROM THEN ON
+# ALL MODIFICATION IS IN control_panel_gui.py
+# THIS SCRIPT IS FOR BACKUP
+#
+#
+#
+# 
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 import rospy
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist

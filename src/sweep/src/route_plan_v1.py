@@ -7,6 +7,8 @@ import yaml
 import os
 import cv2
 
+# Nov22, this version cannot use to following, but can work to show a route
+
 class CoveragePathPlanner:
     def __init__(self):
         rospy.init_node('coverage_path_planner', anonymous=True)

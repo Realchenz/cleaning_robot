@@ -1,65 +1,79 @@
 #!/usr/bin/env python3
-
 import rospy
 import subprocess
 import signal
+import os
 from std_msgs.msg import String
 
-############
-# MAP PATH NEEDS MODIFIED WHEN YOU CHANGE THE MAP
+# UPDATE: Nov22, 2024
+# Use sweep/route_map_server to control AMCL
+# Because AMCL needs map_server
+# Also use RVIZ to see the work
 
-class AMCLController:
+class RouteController:
     def __init__(self):
         # 初始化 ROS 节点
-        rospy.init_node("amcl_controller", anonymous=True)
+        rospy.init_node("route_controller", anonymous=True)
         
-        # 存储 AMCL 进程
-        self.amcl_process = None
-
-        # 指定地图文件的绝对路径
-        self.map_file = "/home/jeff/clean_robot_119/cleaning_robot/src/sweep/src/maps/map_20241121_164920.yaml"
+        # 存储进程
+        self.route_process = None
         
-        # 订阅控制话题
+        # 订阅控制话题 
         rospy.Subscriber("/control_amcl", String, self.control_callback)
         
-        rospy.loginfo("AMCL Controller is running. Waiting for commands...")
+        rospy.loginfo("Route Controller is running. Waiting for commands...")
 
     def control_callback(self, msg):
-        # 接收控制命令，解析动作
+        # 修改为匹配GUI发送的命令
         if msg.data == "start_amcl":
-            self.start_amcl()
+            self.start_route()
         elif msg.data == "stop_amcl":
-            self.stop_amcl()
+            self.stop_route()
         elif msg.data == "quit":
-            rospy.loginfo("Exiting AMCL Controller.")
-            if self.amcl_process is not None:
-                self.stop_amcl()  # 确保退出时关闭 AMCL
+            rospy.loginfo("Exiting Route Controller.")
+            if self.route_process is not None:
+                self.stop_route()
             rospy.signal_shutdown("User requested shutdown")
 
-    def start_amcl(self):
-        if self.amcl_process is None:
-            rospy.loginfo(f"Starting AMCL with map file: {self.map_file}")
-            # 启动 amcl.launch 子进程并指定地图文件
-            self.amcl_process = subprocess.Popen(
-                ["roslaunch", "turtlebot3_navigation", "amcl.launch", f"map_file:={self.map_file}"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
+    def start_route(self):
+        if self.route_process is None:
+            rospy.loginfo(f"Starting route_map_server using rosrun...")
+            try:
+                # use rosrun run route_map_server
+                self.route_process = subprocess.Popen(
+                    ["rosrun", "sweep", "route_map_server.py"],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
+                rospy.loginfo("Route map server started successfully")
+            except Exception as e:
+                rospy.logerr(f"Failed to start route map server: {e}")
         else:
-            rospy.loginfo("AMCL is already running.")
+            rospy.loginfo("Route map server is already running.")
 
-    def stop_amcl(self):
-        if self.amcl_process is not None:
-            rospy.loginfo("Stopping AMCL...")
-            # 发送 SIGINT 信号（模拟 Ctrl+C）来终止进程
-            self.amcl_process.send_signal(signal.SIGINT)
-            self.amcl_process = None
+
+    def stop_route(self):
+        if self.route_process is not None:
+            rospy.loginfo("Stopping route map server...")
+            try:
+                # 发送终止信号给进程组
+                self.route_process.send_signal(signal.SIGINT)
+                self.route_process.wait(timeout=5)
+                rospy.loginfo("Route map server stopped successfully")
+            except subprocess.TimeoutExpired:
+                rospy.logwarn("Route map server did not stop gracefully, forcing termination")
+                self.route_process.kill()
+            except Exception as e:
+                rospy.logerr(f"Error stopping route map server: {e}")
+            finally:
+                self.route_process = None
         else:
-            rospy.loginfo("AMCL is not running.")
+            rospy.loginfo("Route map server is not running.")
+
 
     def run(self):
-        rospy.spin()  # 保持节点运行，监听话题
+        rospy.spin()
 
 if __name__ == "__main__":
-    controller = AMCLController()
+    controller = RouteController()
     controller.run()

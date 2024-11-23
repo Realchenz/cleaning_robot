@@ -1,56 +1,142 @@
 #!/usr/bin/env python3
-
+import rospy
+import yaml
 import os
 from nav_msgs.msg import Path
-from geometry_msgs.msg import PoseStamped
-import rospy
+from visualization_msgs.msg import Marker, MarkerArray
+from geometry_msgs.msg import PoseStamped, Point
+from std_msgs.msg import ColorRGBA
 
-"""
-THIS IS THE (2) SECOND SCRIPT IN ROUTE MODULE
-功能：
-将路径可视化。
-发布路径到 RViz。
-"""
+# 
+#
+#
 
-# 动态路径设置
-script_dir = os.path.dirname(os.path.abspath(__file__))
-path_file = os.path.join(script_dir, "path_files/planned_path.txt")
+class RouteVisualizer:
+    def __init__(self):
+        rospy.init_node('route_visualizer', anonymous=True)
+        
+        # 路径相关
+        self.path_dir = os.path.join(os.path.dirname(__file__), "pathfiles")
+        self.current_path = []
+        self.current_pose_index = 0
+        
+        # 发布器
+        self.path_pub = rospy.Publisher('/coverage_path', Path, queue_size=10)
+        self.marker_pub = rospy.Publisher('/path_markers', MarkerArray, queue_size=10)
+        self.points_pub = rospy.Publisher('/path_points', MarkerArray, queue_size=10)
+        
+        # 加载最新的路径文件
+        self.load_latest_path()
+        
+        # 定时发布
+        self.timer = rospy.Timer(rospy.Duration(0.1), self.publish_visualizations)
 
-# 读取路径
-def load_path(file_path):
-    with open(file_path, "r") as f:
-        lines = f.readlines()
-    return [tuple(map(float, line.strip().split())) for line in lines]
+    def load_latest_path(self):
+        """加载最新的路径文件"""
+        try:
+            # 获取最新的路径文件
+            path_files = [f for f in os.listdir(self.path_dir) if f.endswith('.yaml')]
+            if not path_files:
+                rospy.logwarn("No path files found")
+                return
+                
+            latest_file = max(path_files, key=lambda f: os.path.getctime(os.path.join(self.path_dir, f)))
+            path_file = os.path.join(self.path_dir, latest_file)
+            
+            with open(path_file, 'r') as f:
+                path_data = yaml.safe_load(f)
+                self.current_path = path_data['path_points']
+                rospy.loginfo(f"Loaded path from {path_file}")
+                
+        except Exception as e:
+            rospy.logerr(f"Error loading path file: {e}")
 
-real_path = load_path(path_file)
+    def create_path_message(self):
+        """创建Path消息"""
+        path_msg = Path()
+        path_msg.header.frame_id = "map"
+        path_msg.header.stamp = rospy.Time.now()
+        
+        for point in self.current_path:
+            pose = PoseStamped()
+            pose.header = path_msg.header
+            pose.pose.position.x = point[0]
+            pose.pose.position.y = point[1]
+            pose.pose.orientation.w = 1.0
+            path_msg.poses.append(pose)
+            
+        return path_msg
 
-# 初始化 ROS 节点
-rospy.init_node("path_visualization_node", anonymous=True)
+    def create_marker_array(self):
+        """创建MarkerArray用于显示路径点和线段"""
+        marker_array = MarkerArray()
+        
+        # 路径线段
+        line_marker = Marker()
+        line_marker.header.frame_id = "map"  # 确保使用map框架
+        line_marker.header.stamp = rospy.Time.now()
+        line_marker.ns = "path_lines"
+        line_marker.id = 0
+        line_marker.type = Marker.LINE_STRIP
+        line_marker.action = Marker.ADD
+        line_marker.scale.x = 0.02  # 线宽
+        line_marker.color = ColorRGBA(0.0, 0.5, 1.0, 0.8)  # 蓝色
+        line_marker.pose.orientation.w = 1.0  # 添加这行
+        
+        # 添加路径点
+        for point in self.current_path:
+            p = Point()
+            p.x = point[0]
+            p.y = point[1]
+            p.z = 0.0
+            line_marker.points.append(p)
+            
+        marker_array.markers.append(line_marker)
+        
+        return marker_array
 
-# Publisher for the planned path
-path_pub = rospy.Publisher("/planned_path", Path, queue_size=10)
+    def create_point_markers(self):
+        """创建路径点标记"""
+        marker_array = MarkerArray()
+        
+        for i, point in enumerate(self.current_path):
+            marker = Marker()
+            marker.header.frame_id = "map"
+            marker.header.stamp = rospy.Time.now()
+            marker.ns = "path_points"
+            marker.id = i
+            marker.type = Marker.SPHERE
+            marker.action = Marker.ADD
+            marker.pose.position.x = point[0]
+            marker.pose.position.y = point[1]
+            marker.pose.orientation.w = 1.0
+            marker.scale.x = marker.scale.y = marker.scale.z = 0.05
+            
+            # 根据是否已经经过设置不同颜色
+            if i < self.current_pose_index:
+                marker.color = ColorRGBA(0.0, 1.0, 0.0, 0.8)  # 绿色表示已经过
+            else:
+                marker.color = ColorRGBA(1.0, 0.0, 0.0, 0.8)  # 红色表示未经过
+                
+            marker_array.markers.append(marker)
+            
+        return marker_array
 
-def publish_path(real_path):
-    """Publish a planned path as a nav_msgs/Path."""
-    path_msg = Path()
-    path_msg.header.frame_id = "map"
-    path_msg.header.stamp = rospy.Time.now()  # Add timestamp
+    def publish_visualizations(self, event):
+        """发布所有可视化信息"""
+        if not self.current_path:
+            return
+            
+        self.path_pub.publish(self.create_path_message())
+        self.marker_pub.publish(self.create_marker_array())
+        self.points_pub.publish(self.create_point_markers())
 
-    for x, y in real_path:
-        pose = PoseStamped()
-        pose.header.frame_id = "map"
-        pose.header.stamp = rospy.Time.now()  # Each pose gets a timestamp
-        pose.pose.position.x = x
-        pose.pose.position.y = y
-        pose.pose.position.z = 0
-        path_msg.poses.append(pose)
+    def run(self):
+        rospy.spin()
 
-    # Publish the path
-    rospy.loginfo("Publishing planned path...")
-    path_pub.publish(path_msg)
-
-# 发布路径
-rate = rospy.Rate(1)  # 限制为 1 Hz
-while not rospy.is_shutdown():
-    publish_path(real_path)
-    rate.sleep()
+if __name__ == "__main__":
+    try:
+        visualizer = RouteVisualizer()
+        visualizer.run()
+    except rospy.ROSInterruptException:
+        pass
