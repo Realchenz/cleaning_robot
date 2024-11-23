@@ -35,18 +35,23 @@ class RouteVisualizer:
         """加载最新的路径文件"""
         try:
             # 获取最新的路径文件
-            path_files = [f for f in os.listdir(self.path_dir) if f.endswith('.yaml')]
+            path_files = [f for f in os.listdir(self.path_dir) if f.startswith('coverage_path_') and f.endswith('.yaml')]
             if not path_files:
                 rospy.logwarn("No path files found")
                 return
-                
-            latest_file = max(path_files, key=lambda f: os.path.getctime(os.path.join(self.path_dir, f)))
+
+            # 按文件名排序（因为我们用的是年月日时分格式）
+            latest_file = sorted(path_files)[-1]  # 取最后一个（最新的）文件
             path_file = os.path.join(self.path_dir, latest_file)
+            
+            rospy.loginfo(f"Found these path files: {path_files}")  # 调试信息
+            rospy.loginfo(f"Trying to load: {latest_file}")  # 调试信息
             
             with open(path_file, 'r') as f:
                 path_data = yaml.safe_load(f)
                 self.current_path = path_data['path_points']
-                rospy.loginfo(f"Loaded path from {path_file}")
+                rospy.loginfo(f"Successfully loaded path from {path_file}")
+                rospy.loginfo(f"Loaded {len(self.current_path)} points")  # 调试信息
                 
         except Exception as e:
             rospy.logerr(f"Error loading path file: {e}")
