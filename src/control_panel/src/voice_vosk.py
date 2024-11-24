@@ -33,8 +33,10 @@ def voice_command():
             text = json.loads(result)["text"]
             rospy.loginfo(f"Recognized: {text}")
             pub.publish(text)
-            if "stop" in text.lower():
-                rospy.loginfo("Detected command: stop")
+            if "stop exploration" in text.lower():
+                rospy.loginfo("Detected command: Stop Exploration")
+            if "start exploration" in text.lower():
+                rospy.loginfo("Detected command: Start Exploration")
 
 if __name__ == '__main__':
     try:

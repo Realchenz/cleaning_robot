@@ -11,8 +11,12 @@ import subprocess
 import time
 import os
 
-# Need updates:
-# 1. Quit Program can kill launch file (might hard?)
+# Latest Update: Nov 24, 2024
+# Need Updates:
+# 1. integrate route_follower in panel
+# 2. modify voice control logic, use multiple words to control (eg. start exploration)
+# 3. the explore will automatically stop after one hour, and automatically save the map.
+# 4. add all button voice command in panel_gui
 
 class ControlPanelGUI:
     def __init__(self, root):
@@ -33,7 +37,7 @@ class ControlPanelGUI:
 
         # Main GUI Layout
         root.title("Control Panel")
-        root.geometry("800x800") # 800 x 600
+        root.geometry("750x800") # 800 (width) x 800 (height)
 
         # Button Frame
         button_frame = tk.Frame(root)
@@ -83,15 +87,15 @@ class ControlPanelGUI:
         tk.Button(button_frame, text="Finish Analyzing", command=self.stop_amcl).grid(row=3, column=4, padx=5, pady=5)
 
         # Buttons - Cleaning Functions (Follow the Route)
-        # tk.Label(button_frame, text="Cleaning Functions", font=("Arial", 12, "bold")).grid(row=2, column=0, columnspan=2, pady=5, sticky="w")
-        # tk.Button(button_frame, text="Start Cleaning (Not Finished)", command=self.start_cleaning).grid(row=3, column=0, padx=5, pady=5)
-        # tk.Button(button_frame, text="Stop Cleaning (Not Finished)", command=self.stop_cleaning).grid(row=3, column=0, padx=5, pady=5)
+        tk.Label(button_frame, text="Cleaning Functions", font=("Arial", 12, "bold")).grid(row=4, column=0, columnspan=2, pady=5, sticky="w")
+        tk.Button(button_frame, text="Start Cleaning", command=self.start_cleaning).grid(row=5, column=0, padx=5, pady=5)
+        tk.Button(button_frame, text="Stop Cleaning", command=self.stop_cleaning).grid(row=5, column=1, padx=5, pady=5)
 
 
 
 
         # Quit Program 按钮靠右对齐
-        tk.Button(button_frame, text="Quit Program", command=self.quit_program).grid(row=4, column=4, padx=5, pady=5, sticky="e")
+        tk.Button(button_frame, text="Quit Program", command=self.quit_program).grid(row=5, column=4, padx=5, pady=5, sticky="e")
 
         ######################################       
         # Control Moving
@@ -124,14 +128,6 @@ class ControlPanelGUI:
         # Must make sure stop SLAM before running ACML 
         self.check_slam_running = False
 
-
-
-
-
-
-
-
-
     def log(self, message):
         """Append message to the log output box."""
         self.log_text.configure(state="normal")
@@ -154,9 +150,9 @@ class ControlPanelGUI:
         self.voice_text.see("end")
         self.voice_text.configure(state="disabled")
 
-        if "start" in command:
+        if "start exploration" in command:
             self.start_exploration()
-        elif "stop" in command:
+        elif "stop exploration" in command:
             self.stop_exploration()
         elif "quit program" in command:
             self.quit_program()
@@ -297,6 +293,11 @@ class ControlPanelGUI:
         self.velocity_pub.publish(twist)
         self.log("Turning right...")
 
+    def start_cleaning(self):
+        self.log("Please wait for implementation.")
+
+    def stop_cleaning(self):
+        self.log("Please wait for implementation")
 
 
 
