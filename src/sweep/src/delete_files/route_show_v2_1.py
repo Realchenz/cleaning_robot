@@ -37,8 +37,8 @@ class RouteVisualizer:
         # 定时发布
         self.timer = rospy.Timer(rospy.Duration(0.1), self.publish_visualizations)
 
-    """
     def load_latest_path(self):
+        """加载最新的路径文件"""
         try:
             path_files = [f for f in os.listdir(self.path_dir) if f.startswith('coverage_path_') and f.endswith('.yaml')]
             if not path_files:
@@ -59,40 +59,6 @@ class RouteVisualizer:
             
         except Exception as e:
             rospy.logerr(f"Error loading path file: {e}")
-    """
-
-    def load_latest_path(self):
-        """加载最新的路径文件"""
-        try:
-            path_files = [f for f in os.listdir(self.path_dir) if f.startswith('coverage_path_') and f.endswith('.yaml')]
-            if not path_files:
-                rospy.logwarn("No path files found")
-                return
-
-            latest_file = sorted(path_files)[-1]
-            path_file = os.path.join(self.path_dir, latest_file)
-
-            rospy.loginfo(f"Loading path from {path_file}")
-
-            with open(path_file, 'r') as f:
-                data = yaml.safe_load(f)
-                self.map_data = data.get('map_data', {})
-                
-                # 兼容性处理，将 origin_x 和 origin_y 转换为 origin 嵌套格式
-                self.map_data['origin'] = {
-                    'x': self.map_data.get('origin_x', 0.0),
-                    'y': self.map_data.get('origin_y', 0.0)
-                }
-                
-                self.path_points = data.get('path_points', [])
-
-            rospy.loginfo(f"Loaded {len(self.path_points)} path points")
-            rospy.logdebug(f"Map data: {self.map_data}")
-
-        except Exception as e:
-            rospy.logerr(f"Error loading path file: {e}")
-
-
 
     def create_point_marker(self, point_info, index, point_type):
         """创建点标记"""
