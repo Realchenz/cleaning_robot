@@ -43,11 +43,12 @@ No additional commands are required—the GUI handles all controls.
 
 ### **Abstraction Modules**
 
-<img src="attached_files/V2/presentation_clean_robot/Slide4.png" alt="GUI Screenshot" width="600">
+<img src="attached_files/V2/presentation_clean_robot/Slide4.png" alt="GUI Screenshot" style="max-width: 100%; height: auto;">
+
 
 ### **Directory Structure**
 
-<img src="attached_files/V2/presentation_clean_robot/Slide5.png" alt="GUI Screenshot" width="600">
+<img src="attached_files/V2/presentation_clean_robot/Slide5.png" alt="GUI Screenshot" style="max-width: 100%; height: auto;">
 
 Note: The Cleaning Module I (CCPP) is not in branch `master`, please see its implementation in branch `backup`.
 
@@ -68,7 +69,7 @@ Note: The Cleaning Module I (CCPP) is not in branch `master`, please see its imp
   - Robot movement control.
   - Developer-friendly logs for debugging.
 
-<img src="attached_files/V2/presentation_clean_robot/Slide6.png" alt="GUI Screenshot" width="600">
+<img src="attached_files/V2/presentation_clean_robot/Slide6.png" alt="GUI Screenshot" style="max-width: 100%; height: auto;">
 
 ### **2. Voice Control Module**
 
@@ -78,7 +79,7 @@ Note: The Cleaning Module I (CCPP) is not in branch `master`, please see its imp
   - Publishes recognized commands to the `voice_commands` topic.
   - Enables voice-activated control of exploration and cleaning.
 
-<img src="attached_files/V2/presentation_clean_robot/Slide10.png" alt="GUI Screenshot" width="600">
+<img src="attached_files/V2/presentation_clean_robot/Slide10.png" alt="GUI Screenshot" style="max-width: 100%; height: auto;">
 
 ### **3. Mapping Module**
 
@@ -91,9 +92,9 @@ Note: The Cleaning Module I (CCPP) is not in branch `master`, please see its imp
   3. **Save Map**: Saves the map as `.pgm` and `.yaml` files in the `/maps` directory.
   4. **Finish Mapping**: Stops SLAM and exploration nodes.
 
-<img src="attached_files/V2/presentation_clean_robot/Slide7.png" alt="GUI Screenshot" width="400">
-<img src="attached_files/V2/presentation_clean_robot/Slide8.png" alt="GUI Screenshot" width="400">
-<img src="attached_files/V2/presentation_clean_robot/Slide9.png" alt="GUI Screenshot" width="400">
+<img src="attached_files/V2/presentation_clean_robot/Slide7.png" alt="GUI Screenshot" width="600">
+<img src="attached_files/V2/presentation_clean_robot/Slide8.png" alt="GUI Screenshot" width="600">
+<img src="attached_files/V2/presentation_clean_robot/Slide9.png" alt="GUI Screenshot" width="600">
 
 ### **4. Cleaning Modules**
 
@@ -106,7 +107,7 @@ Note: The Cleaning Module I (CCPP) is not in branch `master`, please see its imp
 
 Note: Cleaning Module I is developed at branch `backup`
 
-<img src="attached_files/V2/presentation_clean_robot/Slide11.png" alt="GUI Screenshot" width="400">
+<img src="attached_files/V2/presentation_clean_robot/Slide11.png" alt="GUI Screenshot" width="600">
 
 
 #### **Cleaning Module II**
@@ -120,12 +121,12 @@ Note: Cleaning Module I is developed at branch `backup`
     - **Route Follow Submodule**:
       - Executes the planned path, marking cleaned areas in real-time (still under debugging).
 
-<img src="attached_files/V2/presentation_clean_robot/Slide14.png" alt="GUI Screenshot" width="400">
-<img src="attached_files/V2/presentation_clean_robot/Slide15.png" alt="GUI Screenshot" width="400">
-<img src="attached_files/V2/presentation_clean_robot/Slide16.png" alt="GUI Screenshot" width="400">
-<img src="attached_files/V2/presentation_clean_robot/Slide17.png" alt="GUI Screenshot" width="400">
-<img src="attached_files/V2/presentation_clean_robot/Slide18.png" alt="GUI Screenshot" width="400">
-<img src="attached_files/V2/presentation_clean_robot/Slide19.png" alt="GUI Screenshot" width="400">
+<img src="attached_files/V2/presentation_clean_robot/Slide14.png" alt="GUI Screenshot" width="600">
+<img src="attached_files/V2/presentation_clean_robot/Slide15.png" alt="GUI Screenshot" width="600">
+<img src="attached_files/V2/presentation_clean_robot/Slide16.png" alt="GUI Screenshot" width="600">
+<img src="attached_files/V2/presentation_clean_robot/Slide17.png" alt="GUI Screenshot" width="600">
+<img src="attached_files/V2/presentation_clean_robot/Slide18.png" alt="GUI Screenshot" width="600">
+<img src="attached_files/V2/presentation_clean_robot/Slide19.png" alt="GUI Screenshot" width="600">
 
 ---
 
