@@ -1,96 +1,183 @@
-# Smart Cleaning Robot
+# **Smart Cleaning Robot**
 
-## Launch and Files Introduction
+## **Overview**
 
-### Launch in Simulation (gazebo and explore)
+This is a ROS-based autonomous cleaning robot that integrates indoor mapping, voice control, and innovative cleaning functionalities. This project features expandable modules, making it a valuable tool for research, education, and real-world applications.
 
-> roslaunch control_panel panel.launch (world:=y)
+### **Key Features**
 
-y default: warehouse, you can also choose bookstore, house, and turtlebot_house.
+- **GUI Control Panel**: A user-friendly interface to manage all modules without command-line interaction.
+- **Voice Control**: Real-time voice recognition for hands-free operation.
+- **Mapping**: Efficient exploration and map saving using the Explore_Lite package.
+- **Cleaning**: Two cleaning modules for full-coverage path planning, including a fully self-designed solution.
 
-eg., you can input: `roslaunch control_panel panel.launch world:=bookstore`
+---
 
-it essentially includes following launch files or nodes:
+## **Getting Started**
 
-#1 : Gazebo World Map
-roslaunch (depends on the parameter passing)
+### **Program Entry**
 
-#2 : gmapping(SLAM) + RViz
-roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping
+To start the program:
 
-#3 : move_base (do not run if run #6)
-roslaunch turtlebot3_navigation move_base.launch
+1. **For Simulation**:
 
-#4: Explore_Lite (do not run if run #7)
-roslaunch explore_lite explore.launch
+  Remember to set localhost settings in ~/.bashrc
 
-#5: voice_vosk
-rosrun control_panel_voice voice_vosk.py
+```bash
+   roslaunch control_panel panel_sim.launch
+```
 
-#6: move_base controller (must run #7, #8 together)
-rosrun control_panel_voice move_base_controller.py
+2. **For Real Robot**:
 
-#7: explore_controller (must run #6, #8 together)
-rosrun control_panel_voice explore_controller.py
+  Remember to set real IP settings in ~/.bashrc and update turtlebot3's settings
 
-#8: control_panel
-rosrun control_panel_voice control_panel.py
+```bash
+   roslaunch control_panel panel_real.launch
+```
 
-### Other related: (for test or other usage)
+No additional commands are required—the GUI handles all controls.
 
-#1：warehouse gazebo map only (with turtlebot3)
-roslaunch sweep world_sim.launch
+---
 
-#2：launch SLAM only
-roslaunch turtlebot3_slam turtlebot3_slam.launch
+## **System Architecture**
 
-#3：launch navigation only
-roslaunch turtlebot3_navigation move_base.launch
+### **Abstraction Modules**
 
-#4：run RViz only
-rosrun rviz rviz
+<img src="attached_files/V2/presentation_clean_robot/Slide4.png" alt="GUI Screenshot" width="600">
 
-#5: launch teleop (only in test now, will be replaced soon)
-roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
+### **Directory Structure**
 
-## Proposal
+<img src="attached_files/V2/presentation_clean_robot/Slide5.png" alt="GUI Screenshot" width="600">
 
-The proposal document is available in the `/attached_files` folder as a PDF.
+Note: The Cleaning Module I (CCPP) is not in branch `master`, please see its implementation in branch `backup`.
 
-## Project Overview
+---
 
-This project focuses on developing a cleaning robot with autonomous navigation capabilities. The robot utilizes frontier exploration for mapping and voice control for operational commands.
+## **Modules and Responsibilities**
 
-## Update: Week Oct. 30 - Nov. 5
+### **1. Panel Module**
 
-- **Implemented**:
-  - Frontier exploration using the `explore_lite` package, which generates real-time maps.
-  - Voice control functionalities for basic commands.
-- **Next Steps**:
-  1. **Integrate** all functions to demonstrate a complete working system.
-  2. **Develop custom exploration and planning code** to better suit practical applications, focusing on enhancing efficiency and adaptability.
+- **Developer**: Pang Liu
+- **Description**:
+  - Self-designed GUI for controlling all program modules.
+  - Provides buttons and voice control integration for seamless operation.
+- **Key Features**:
+  - Start SLAM, exploration, and cleaning processes.
+  - Save and load maps.
+  - Route analysis and visualization in RViz.
+  - Robot movement control.
+  - Developer-friendly logs for debugging.
 
-## Update: Week Nov. 5 - Nov. 13
+<img src="attached_files/V2/presentation_clean_robot/Slide6.png" alt="GUI Screenshot" width="600">
 
-- **Implemented**:
+### **2. Voice Control Module**
 
-  - **Global Path Planning**: Integrated `full_coverage_path_planner` to design an efficient path covering the entire workspace, ensuring thorough cleaning coverage with minimal retracing.
-  - **Path Tracking Control**: Implemented motion control with `tracking_pid` for precise path-following capabilities. This feature improves the robot's accuracy in adhering to planned paths, enabling smooth and responsive navigation along coverage paths.
-- **Next Steps**:
+- **Developer**: Pang Liu
+- **Description**:
+  - Real-time voice recognition using the **Vosk model**.
+  - Publishes recognized commands to the `voice_commands` topic.
+  - Enables voice-activated control of exploration and cleaning.
 
-  1. **System Integration**: Integrate `explore_lite`, `full_coverage_path_planner`, and `tracking_pid` functionalities for a fully autonomous demonstration, combining exploration, global path planning, and motion control.
-  2. **Demo Preparation**: Prepare a complete demo that showcases exploration, global coverage, and path-following capabilities in a unified system.
+<img src="attached_files/V2/presentation_clean_robot/Slide10.png" alt="GUI Screenshot" width="600">
 
-## Visual Demonstrations
+### **3. Mapping Module**
 
-- **Map Generated by `explore_lite`**:
-  ![Map Generated by explore_lite](attached_files/map.png)
-- **Path Planning with CCPP**:
-  ![Path Planning using CCPP](attached_files/ccpp.jpg)
+- **Developer**: Zhenxu Chen
+- **Description**:
+  - Based on the **Explore_Lite** package, customized for fast exploration and map saving.
+- **Workflow**:
+  1. **Start SLAM**: Launches `turtlebot3_slam.launch` for SLAM and RViz.
+  2. **Start Exploration**: Begins autonomous exploration using `explore.launch`.
+  3. **Save Map**: Saves the map as `.pgm` and `.yaml` files in the `/maps` directory.
+  4. **Finish Mapping**: Stops SLAM and exploration nodes.
 
-## Videos
+<img src="attached_files/V2/presentation_clean_robot/Slide7.png" alt="GUI Screenshot" width="400">
+<img src="attached_files/V2/presentation_clean_robot/Slide8.png" alt="GUI Screenshot" width="400">
+<img src="attached_files/V2/presentation_clean_robot/Slide9.png" alt="GUI Screenshot" width="400">
 
-Separate video demonstrations for each functionality are available as `.mp4` files:
+### **4. Cleaning Modules**
 
-- [Frontier Exploration Video](attached_files/explore_lite.mp4)
-- [CCPP Path Planning Video](attached_files/ccpp.mp4)
+#### **Cleaning Module I**
+
+- **Developer**: Zhenxu Chen
+- **Description**:
+  - Based on the **CCPP package** for full-coverage path planning and cleaning.
+  - Utilizes `move_base` for navigation.
+
+Note: Cleaning Module I is developed at branch `backup`
+
+<img src="attached_files/V2/presentation_clean_robot/Slide11.png" alt="GUI Screenshot" width="400">
+
+
+#### **Cleaning Module II**
+
+- **Developer**: Pang Liu
+- **Description**:
+  - Fully self-designed cleaning functionality split into two submodules:
+    - **Route Analysis Submodule**:
+      - Reads saved maps and analyzes routes using a three-value map (-1 for obstacles, 0 for uncleaned areas, 1 for cleaned areas).
+      - Plans paths using sampling intervals and a greedy algorithm to find valid connections.
+    - **Route Follow Submodule**:
+      - Executes the planned path, marking cleaned areas in real-time (still under debugging).
+
+<img src="attached_files/V2/presentation_clean_robot/Slide14.png" alt="GUI Screenshot" width="400">
+<img src="attached_files/V2/presentation_clean_robot/Slide15.png" alt="GUI Screenshot" width="400">
+<img src="attached_files/V2/presentation_clean_robot/Slide16.png" alt="GUI Screenshot" width="400">
+<img src="attached_files/V2/presentation_clean_robot/Slide17.png" alt="GUI Screenshot" width="400">
+<img src="attached_files/V2/presentation_clean_robot/Slide18.png" alt="GUI Screenshot" width="400">
+<img src="attached_files/V2/presentation_clean_robot/Slide19.png" alt="GUI Screenshot" width="400">
+
+---
+
+## **How to Use**
+
+### **Control Panel Buttons**
+
+- **Start SLAM**: Launches SLAM and RViz.
+- **Start/Stop Exploration**: Begins or halts autonomous exploration.
+- **Save Map**: Saves the current map to the `/maps` directory.
+- **Analyze Route**: Uses `route_plan.py` to plan paths based on the saved map.
+- **Show Route**: Visualizes the planned route in RViz.
+- **Start Cleaning**: Executes the cleaning routine (based on the selected cleaning module).
+- **Robot Control**: Allows manual control of the robot via `/cmd_vel`.
+- **Quit Program**: Shuts down the system.
+
+---
+
+## **Key Technologies**
+
+1. **Mapping Module**:
+   - **SLAM**: Uses GMapping for real-time map creation and localization.
+   - **Explore_Lite**: Implements frontier-based exploration.
+2. **Cleaning Module II**:
+   - **Route Analysis**:
+     - Reads maps as `OccupancyGrid` messages.
+     - Processes maps using NumPy for obstacle inflation and path planning.
+     - Generates waypoints with greedy algorithms.
+   - **Route Follow**:
+     - Executes planned routes, dynamically updating cleaned areas in RViz.
+3. **Voice Control Module**:
+   - Powered by the Vosk speech recognition model for offline voice command processing.
+
+---
+
+## **Future Plans**
+
+- Refine and debug the Route Follow submodule.
+- Open-source the project to foster collaboration on smart cleaning robot innovations.
+- Create a tutorial for building autonomous cleaning robots step-by-step.
+- Expand the frontier exploration module with self-designed algorithms.
+
+---
+
+## **Demo Videos**
+
+- Simulation in Gazebo demo will release soon.
+- Real world demo will release soon.
+
+---
+
+## **Contributors**
+
+- **Pang Liu**: Panel Module, Voice Control, Cleaning Module II.
+- **Zhenxu Chen**: Mapping Module, Cleaning Module I.
