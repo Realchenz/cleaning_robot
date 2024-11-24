@@ -7,15 +7,15 @@ from geometry_msgs.msg import Point
 from std_msgs.msg import ColorRGBA
 
 class MapData:
-    OBSTACLE = -1
-    UNVISITED = 0
-    VISITED = 1
+    OBSTACLE = -1    # 障碍物点
+    UNVISITED = 0    # 未访问的路径点
+    VISITED = 1      # 已访问的路径点
 
 class PointDisplay:
     OBSTACLE_COLOR = ColorRGBA(0.0, 0.0, 0.0, 0.8)    # 黑色
     UNVISITED_COLOR = ColorRGBA(1.0, 0.0, 0.0, 0.8)   # 红色
     VISITED_COLOR = ColorRGBA(0.0, 1.0, 0.0, 0.8)     # 绿色
-    POINT_SIZE = 0.05
+    POINT_SIZE = 0.1  # 点的大小
 
 class RouteVisualizer:
     def __init__(self):
@@ -26,211 +26,209 @@ class RouteVisualizer:
         self.path_points = []
         self.current_point_id = 0  # 当前访问点的ID
         
-        # 发布器
-        self.points_pub = rospy.Publisher('/path_visualization', MarkerArray, queue_size=10)
-        self.connection_pub = rospy.Publisher('/path_connections', MarkerArray, queue_size=10)
+        # 发布器（使用latch=True确保消息持续存在）
+        self.points_pub = rospy.Publisher('/path_visualization', MarkerArray, queue_size=1, latch=True)
+        self.connection_pub = rospy.Publisher('/path_connections', MarkerArray, queue_size=1, latch=True)
         
         # 加载路径文件
-        self.path_dir = os.path.join(os.path.dirname(__file__), "pathfiles")
+        self.path_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pathfiles")
+        if not os.path.exists(self.path_dir):
+            os.makedirs(self.path_dir)
         self.load_latest_path()
         
         # 定时发布
-        self.timer = rospy.Timer(rospy.Duration(0.1), self.publish_visualizations)
+        self.timer = rospy.Timer(rospy.Duration(1.0), self.publish_visualizations)
+        rospy.loginfo("Route visualizer initialized")
 
-    """
     def load_latest_path(self):
+        """加载最新的路径文件"""
         try:
-            path_files = [f for f in os.listdir(self.path_dir) if f.startswith('coverage_path_') and f.endswith('.yaml')]
+            path_files = [f for f in os.listdir(self.path_dir) 
+                         if f.startswith('coverage_path_') and f.endswith('.yaml')]
             if not path_files:
                 rospy.logwarn("No path files found")
                 return
-            
+                
             latest_file = sorted(path_files)[-1]
             path_file = os.path.join(self.path_dir, latest_file)
-            
             rospy.loginfo(f"Loading path from {path_file}")
             
             with open(path_file, 'r') as f:
                 data = yaml.safe_load(f)
                 self.map_data = data['map_data']
                 self.path_points = data['path_points']
+                rospy.loginfo(f"Loaded {len(self.path_points)} path points")
                 
-            rospy.loginfo(f"Loaded {len(self.path_points)} path points")
-            
         except Exception as e:
-            rospy.logerr(f"Error loading path file: {e}")
-    """
+            rospy.logerr(f"Error loading path file: {str(e)}")
 
-    def load_latest_path(self):
-        """加载最新的路径文件"""
-        try:
-            path_files = [f for f in os.listdir(self.path_dir) if f.startswith('coverage_path_') and f.endswith('.yaml')]
-            if not path_files:
-                rospy.logwarn("No path files found")
-                return
+    def are_adjacent(self, point1, point2):
+        """判断两个点是否相邻"""
+        sampling_interval = self.path_points[0].get('sampling_interval', 5)  # 默认值5
+        dx = abs(point1['grid_x'] - point2['grid_x'])
+        dy = abs(point1['grid_y'] - point2['grid_y'])
+        return (dx == sampling_interval and dy == 0) or (dx == 0 and dy == sampling_interval)
 
-            latest_file = sorted(path_files)[-1]
-            path_file = os.path.join(self.path_dir, latest_file)
-
-            rospy.loginfo(f"Loading path from {path_file}")
-
-            with open(path_file, 'r') as f:
-                data = yaml.safe_load(f)
-                self.map_data = data.get('map_data', {})
-                
-                # 兼容性处理，将 origin_x 和 origin_y 转换为 origin 嵌套格式
-                self.map_data['origin'] = {
-                    'x': self.map_data.get('origin_x', 0.0),
-                    'y': self.map_data.get('origin_y', 0.0)
-                }
-                
-                self.path_points = data.get('path_points', [])
-
-            rospy.loginfo(f"Loaded {len(self.path_points)} path points")
-            rospy.logdebug(f"Map data: {self.map_data}")
-
-        except Exception as e:
-            rospy.logerr(f"Error loading path file: {e}")
-
-
-
-    def create_point_marker(self, point_info, index, point_type):
-        """创建点标记"""
-        marker = Marker()
-        marker.header.frame_id = "map"
-        marker.header.stamp = rospy.Time.now()
-        marker.ns = "path_points"
-        marker.id = index
-        marker.type = Marker.SPHERE
-        marker.action = Marker.ADD
+    def find_valid_connections(self, points):
+        """找出所有有效的连接"""
+        connections = []
+        visited = set()
         
-        # 设置位置
-        marker.pose.position.x = point_info['world_x']
-        marker.pose.position.y = point_info['world_y']
-        marker.pose.position.z = 0.0
-        marker.pose.orientation.w = 1.0
-        
-        # 设置大小
-        marker.scale.x = marker.scale.y = marker.scale.z = PointDisplay.POINT_SIZE
-        
-        # 根据点类型设置颜色
-        if point_type == MapData.OBSTACLE:
-            marker.color = PointDisplay.OBSTACLE_COLOR
-        elif point_type == MapData.VISITED:
-            marker.color = PointDisplay.VISITED_COLOR
-        else:
-            marker.color = PointDisplay.UNVISITED_COLOR
+        if not points:
+            return connections
             
-        return marker
-
-    def create_connection_markers(self):
-        """创建相邻点之间的连接线"""
-        markers = []
-        marker_id = 0
+        current_point = points[0]
+        visited.add(0)
         
-        for i, point in enumerate(self.path_points):
-            # 检查下一个点
-            if i + 1 < len(self.path_points):
-                next_point = self.path_points[i + 1]
+        while len(visited) < len(points):
+            best_distance = float('inf')
+            best_next_point = None
+            best_next_idx = None
+            
+            # 找到最近的未访问点
+            for i, point in enumerate(points):
+                if i in visited:
+                    continue
+                    
+                if not self.are_adjacent(current_point, point):
+                    continue
                 
-                # 检查是否为相邻点（只考虑上下左右）
-                dx = abs(next_point['grid_x'] - point['grid_x'])
-                dy = abs(next_point['grid_y'] - point['grid_y'])
-                
-                if (dx == 0 and dy == 1) or (dx == 1 and dy == 0):
-                    marker = Marker()
-                    marker.header.frame_id = "map"
-                    marker.header.stamp = rospy.Time.now()
-                    marker.ns = "connections"
-                    marker.id = marker_id
-                    marker.type = Marker.ARROW
-                    marker.action = Marker.ADD
-                    
-                    # 设置起点和终点
-                    start = Point()
-                    start.x = point['world_x']
-                    start.y = point['world_y']
-                    
-                    end = Point()
-                    end.x = next_point['world_x']
-                    end.y = next_point['world_y']
-                    
-                    marker.points = [start, end]
-                    
-                    # 设置箭头的大小
-                    marker.scale.x = 0.02  # 箭身宽度
-                    marker.scale.y = 0.04  # 箭头宽度
-                    
-                    # 设置颜色（使用浅蓝色）
-                    marker.color = ColorRGBA(0.3, 0.3, 1.0, 0.8)
-                    
-                    markers.append(marker)
-                    marker_id += 1
+                distance = ((current_point['grid_x'] - point['grid_x']) ** 2 + 
+                          (current_point['grid_y'] - point['grid_y']) ** 2) ** 0.5
+                          
+                if distance < best_distance:
+                    best_distance = distance
+                    best_next_point = point
+                    best_next_idx = i
+            
+            if best_next_point is None:
+                # 如果找不到下一个点，从剩余未访问点中选择一个新的起点
+                unvisited = set(range(len(points))) - visited
+                if unvisited:
+                    next_start_idx = min(unvisited)
+                    current_point = points[next_start_idx]
+                    visited.add(next_start_idx)
+                    continue
+                else:
+                    break
+            
+            connections.append((current_point, best_next_point))
+            visited.add(best_next_idx)
+            current_point = best_next_point
         
-        return markers
+        return connections
 
     def publish_visualizations(self, event):
         """发布可视化信息"""
-        if not self.path_points:
+        if not self.map_data or not self.path_points:
             return
-        
+
         # 创建点标记
         point_markers = MarkerArray()
         
         # 添加路径点
         for i, point in enumerate(self.path_points):
-            # 根据点ID判断是否已访问
-            point_type = MapData.VISITED if point['id'] < self.current_point_id else MapData.UNVISITED
-            marker = self.create_point_marker(point, i, point_type)
+            marker = Marker()
+            marker.header.frame_id = "map"
+            marker.header.stamp = rospy.Time.now()
+            marker.ns = "path_points"
+            marker.id = i
+            marker.type = Marker.SPHERE
+            marker.action = Marker.ADD
+            
+            marker.pose.position.x = point['world_x']
+            marker.pose.position.y = point['world_y']
+            marker.pose.position.z = 0.0
+            marker.pose.orientation.w = 1.0
+            
+            marker.scale.x = marker.scale.y = marker.scale.z = PointDisplay.POINT_SIZE
+            
+            # 根据点的状态设置颜色
+            if point.get('status', 0) == MapData.VISITED:
+                marker.color = PointDisplay.VISITED_COLOR
+            else:
+                marker.color = PointDisplay.UNVISITED_COLOR
+            
             point_markers.markers.append(marker)
         
         # 添加障碍物点
         obstacle_id = len(self.path_points)
-        for y in range(self.map_data['height']):
-            for x in range(self.map_data['width']):
-                if self.map_data['array'][y][x] == MapData.OBSTACLE:
-                    #world_x = x * self.map_data['resolution
-                    # Claude stops here                            
-                    # followings are finished by ChatGPT
-
-                    world_x = x * self.map_data['resolution'] + self.map_data['origin']['x']
-                    world_y = y * self.map_data['resolution'] + self.map_data['origin']['y']
-                    
-                    # 创建障碍物点标记
+        map_array = self.map_data['array']
+        resolution = self.map_data['resolution']
+        origin_x = self.map_data['origin_x']
+        origin_y = self.map_data['origin_y']
+        
+        # 采样显示障碍物点（每隔几个点显示一个）
+        sampling = 5  # 可以调整这个值来改变障碍物点的密度
+        for y in range(0, len(map_array), sampling):
+            for x in range(0, len(map_array[0]), sampling):
+                if map_array[y][x] == MapData.OBSTACLE:
                     marker = Marker()
                     marker.header.frame_id = "map"
                     marker.header.stamp = rospy.Time.now()
-                    marker.ns = "obstacles"
+                    marker.ns = "obstacle_points"
                     marker.id = obstacle_id
                     marker.type = Marker.SPHERE
                     marker.action = Marker.ADD
                     
-                    # 设置位置
-                    marker.pose.position.x = world_x
-                    marker.pose.position.y = world_y
+                    marker.pose.position.x = x * resolution + origin_x
+                    marker.pose.position.y = y * resolution + origin_y
                     marker.pose.position.z = 0.0
                     marker.pose.orientation.w = 1.0
                     
-                    # 设置大小
                     marker.scale.x = marker.scale.y = marker.scale.z = PointDisplay.POINT_SIZE
-                    
-                    # 设置颜色
                     marker.color = PointDisplay.OBSTACLE_COLOR
                     
                     point_markers.markers.append(marker)
                     obstacle_id += 1
-        
+
         # 发布点标记
-        self.points_pub.publish(point_markers)
-        
+        if point_markers.markers:
+            self.points_pub.publish(point_markers)
+            rospy.loginfo_throttle(10, f"Published {len(point_markers.markers)} markers")
+
         # 创建并发布连接线标记
+        connections = self.find_valid_connections(self.path_points)
         connection_markers = MarkerArray()
-        connection_markers.markers = self.create_connection_markers()
-        self.connection_pub.publish(connection_markers)
+        
+        for i, (start_point, end_point) in enumerate(connections):
+            marker = Marker()
+            marker.header.frame_id = "map"
+            marker.header.stamp = rospy.Time.now()
+            marker.ns = "connections"
+            marker.id = i
+            marker.type = Marker.ARROW
+            marker.action = Marker.ADD
+            
+            # 设置起点和终点
+            start = Point()
+            start.x = start_point['world_x']
+            start.y = start_point['world_y']
+            start.z = 0.0
+            
+            end = Point()
+            end.x = end_point['world_x']
+            end.y = end_point['world_y']
+            end.z = 0.0
+            
+            marker.points = [start, end]
+            marker.scale.x = 0.02  # 箭身宽度
+            marker.scale.y = 0.04  # 箭头宽度
+            marker.color = ColorRGBA(0.3, 0.3, 1.0, 0.8)  # 蓝色
+            
+            connection_markers.markers.append(marker)
+        
+        if connection_markers.markers:
+            self.connection_pub.publish(connection_markers)
+            rospy.loginfo_throttle(10, f"Published {len(connection_markers.markers)} connections")
+
+    def run(self):
+        rospy.loginfo("Route visualizer running...")
+        rospy.spin()
 
 if __name__ == "__main__":
     try:
         visualizer = RouteVisualizer()
-        rospy.spin()  # 保持节点运行
+        visualizer.run()
     except rospy.ROSInterruptException:
-        rospy.loginfo("Route visualizer node terminated.")
+        pass

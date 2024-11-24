@@ -252,7 +252,8 @@ class ControlPanelGUI:
                     stderr=subprocess.PIPE
                 )
             self.log("Route analysis completed successfully")
-            self.log("You can now show the route and see it.")
+            self.log("But the processing might take some time,")
+            self.log("So please wait for at least 10 seconds before showing the map!")
         except Exception as e:
             self.log(f"Unexpected error during route analysis: {e}")
 
