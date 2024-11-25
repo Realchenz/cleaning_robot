@@ -31,6 +31,7 @@ class ControlPanelGUI:
         self.control_gmapping_pub = rospy.Publisher("/control_gmapping", String, queue_size=10)
         self.control_amcl_pub = rospy.Publisher("/control_amcl", String, queue_size=10)
         self.control_route_show_pub = rospy.Publisher("/control_route_show", String, queue_size=10)
+        self.control_route_follow_pub = rospy.Publisher("/control_route_follow", String, queue_size=10)
 
         # ROS Subscribers
         rospy.Subscriber("voice_commands", String, self.voice_callback)
@@ -292,19 +293,14 @@ class ControlPanelGUI:
         self.log("Turning right...")
 
     def start_cleaning(self):
-        self.log("Please wait for implementation.")
+        self.control_route_follow_pub.publish("start_route_follow")
+        self.log("Starting route follow...")
+        self.log("If you are using RViz, and already open route_show routes,")
+        self.log("Please remember switch the MarkerArray's topic to switch to route_follow markers.")
 
     def stop_cleaning(self):
-        self.log("Please wait for implementation")
-
-
-
-
-
-
-
-
-
+        self.control_route_follow_pub.publish("stop_route_follow")
+        self.log("Stop route follow.")
 
 
 if __name__ == "__main__":
