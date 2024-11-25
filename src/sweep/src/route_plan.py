@@ -9,17 +9,17 @@ import time
 import matplotlib.pyplot as plt
 
 class MapData:
-    OBSTACLE = -1    # 障碍物点
-    UNVISITED = 0    # 未访问的路径点
-    VISITED = 1      # 已访问的路径点
+    OBSTACLE = -1    # black point, means obstacles and other things
+    UNVISITED = 0    # red point, the place has not cleaned (reached)
+    VISITED = 1      # green point, the place has cleaned (reached)
 
 class CoveragePathPlanner:
     def __init__(self):
         rospy.init_node('coverage_path_planner', anonymous=True)
         
-        # 参数设置
-        self.robot_radius = 0.2      # 机器人半径
-        self.sweep_width = 0.4       # 清扫宽度
+        # Parameter Settings (参数设置)
+        self.robot_radius = 0.2      # The r of the robot (机器人半径)
+        self.sweep_width = 0.4       # The width of cleaning (清扫宽度)
         self.grid_resolution = 0.05  # 栅格分辨率
         self.SAMPLING_INTERVAL = 5   # 采样间隔（每5个格子取一个点）
         
