@@ -87,11 +87,14 @@ class ControlPanelGUI:
         tk.Button(button_frame, text="Finish Analyzing", command=self.stop_amcl).grid(row=3, column=4, padx=5, pady=5)
 
         # Buttons - Cleaning Functions (Follow the Route)
-        tk.Label(button_frame, text="Cleaning Functions", font=("Arial", 12, "bold")).grid(row=4, column=0, columnspan=2, pady=5, sticky="w")
-        tk.Button(button_frame, text="Start Cleaning", command=self.start_cleaning).grid(row=5, column=0, padx=5, pady=5)
-        tk.Button(button_frame, text="Stop Cleaning", command=self.stop_cleaning).grid(row=5, column=1, padx=5, pady=5)
+        # tk.Label(button_frame, text="Cleaning Functions", font=("Arial", 12, "bold")).grid(row=4, column=0, columnspan=2, pady=5, sticky="w")
+        # tk.Button(button_frame, text="Start Cleaning", command=self.start_cleaning).grid(row=5, column=0, padx=5, pady=5)
+        # tk.Button(button_frame, text="Stop Cleaning", command=self.stop_cleaning).grid(row=5, column=1, padx=5, pady=5)
 
-
+        # 修改后的代码:
+        tk.Label(button_frame, text="Cleaning Functions", font=("Helvetica", 12, "bold")).grid(row=4, column=0, columnspan=2, pady=5, sticky="w")
+        tk.Button(button_frame, text="Start Cleaning", command=self.start_cleaning, font=("Helvetica", 10)).grid(row=5, column=0, padx=5, pady=5)
+        tk.Button(button_frame, text="Stop Cleaning", command=self.stop_cleaning, font=("Helvetica", 10)).grid(row=5, column=1, padx=5, pady=5)
 
 
         # Quit Program 按钮靠右对齐
@@ -119,11 +122,6 @@ class ControlPanelGUI:
         self.btn_stop.grid(row=1, column=1)
         self.btn_right.grid(row=1, column=2, padx=2)
         self.btn_down.grid(row=2, column=1, pady=2)
-
-        # 让控制面板居中
-        # control_frame.grid_columnconfigure(3, weight=1)  # 右侧添加弹性空间
-        # control_frame.grid_columnconfigure(0, weight=1)  # 左侧添加弹性空间
-        ##########################################
 
         # Must make sure stop SLAM before running ACML 
         self.check_slam_running = False
