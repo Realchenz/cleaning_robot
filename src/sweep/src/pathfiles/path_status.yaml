@@ -3936,11 +3936,11 @@ points_status:
 - id: 1967
   status: 0
 - id: 1968
-  status: 0
+  status: 1
 - id: 1969
-  status: 0
+  status: 1
 - id: 1970
-  status: 0
+  status: 1
 - id: 1971
   status: 1
 - id: 1972
@@ -4163,4 +4163,4 @@ points_status:
   status: 0
 - id: 2081
   status: 0
-timestamp: 2703.244
+timestamp: 2728.244
