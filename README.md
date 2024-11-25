@@ -68,7 +68,7 @@ Note: The Cleaning Module I (CCPP) is not in branch `master`, please see its imp
   - Robot movement control.
   - Developer-friendly logs for debugging.
 - Real running illustration:
-  - <img src="attached_files/V2/project_resources/control_panel_gui.png" alt="GUI Screenshot" style="max-width: 100%; height: auto;">
+  - <img src="attached_files/V2/project_resources/control_panel_gui.png" alt="GUI Screenshot" width="400">
 
 ### **2. Voice Control Module**
 
@@ -166,12 +166,13 @@ Note: The Cleaning Module I (CCPP) is not in branch `master`, please see its imp
   - (2) When reach a red point, that point will turn to green
   - (3) If the robot found the red point is not reachable, might be a wall, might be a moving obstacle, then the point will turn to black.
 - The full logic of `route_follow.py`:
-  - <img src="attached_files/V2/project_resources/route_follow_flow.png" alt="GUI Screenshot" style="max-width: 100%; height: auto;">
 
+  - <img src="attached_files/V2/project_resources/route_follow_flow.png" alt="GUI Screenshot" style="max-width: 100%; height: auto;">
 - **black point demo:**
+
   - <img src="attached_files/V2/project_resources/route_follow_black_point.png" alt="GUI Screenshot" width="300">
-  
 - **red point turn to green point demo:**
+
   - <img src="attached_files/V2/project_resources/route_follow_1.png" alt="GUI Screenshot" width="600">
 
 ---
