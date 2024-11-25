@@ -31,6 +31,14 @@
     <node pkg="control_panel" type="control_panel_gui.py" 
         name="control_panel_gui" output="screen"/>
 
+  
+  <!-- robot state publisher, for SLAM and AMCL-->
+  <!--
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+        <param name="publish_frequency" type="double" value="50.0" />
+    </node>
+    -->
+
 
   <!--==================== EXPLORE ============================-->
   <!--==================== MODULES ============================-->
@@ -91,7 +99,10 @@
   <!--==================== CLEANING ============================-->
   <!--==================== MODULES ============================-->
 
-  <!--  Route Follow (Not implement now) -->
+  <!--  Route Follow -->
+  <node pkg="control_panel" type="controller_route_follow.py"
+  name="route_follow" output="screen"
+  launch-prefix="xterm -e"/>
 
 
 

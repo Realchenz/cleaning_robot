@@ -153,8 +153,8 @@ class ControlPanelGUI:
             self.start_exploration()
         elif "stop exploration" in command:
             self.stop_exploration()
-        elif "quit program" in command:
-            self.quit_program()
+        # elif "quit program" in command:
+        #     self.quit_program()
 
     def start_slam(self):
         self.log("Starting SLAM...")
@@ -297,6 +297,7 @@ class ControlPanelGUI:
         self.log("Starting route follow...")
         self.log("If you are using RViz, and already open route_show routes,")
         self.log("Please remember switch the MarkerArray's topic to switch to route_follow markers.")
+        self.log("Please wait for the initilization for about 10 seconds.")
 
     def stop_cleaning(self):
         self.control_route_follow_pub.publish("stop_route_follow")

@@ -69,10 +69,19 @@
 
 
 
-    <!-- 添加 robot_state_publisher | for AMCL and Rviz to show robot model -->
+    <!-- 添加 robot_state_publisher | for AMCL and Rviz to show robot model 
+    
+    Update Nov25: SLAM and AMCL all needs robot_state_publisher, so move it to panel launch file
+    
+    -->
+    <!--
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
         <param name="publish_frequency" type="double" value="50.0" />
     </node>
+    -->
+
+
+
 
     <!-- 添加 joint_state_publisher | for AMCL and TF transformation-->
     <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher">

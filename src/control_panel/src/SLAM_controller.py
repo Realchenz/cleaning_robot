@@ -33,8 +33,14 @@ class GmappingController:
     def start_gmapping(self):
         if self.gmapping_process is None:
             rospy.loginfo("Starting turtlebot3_slam with gmapping...")
-            # 启动 gmapping.launch 子进程
-            self.gmapping_process = subprocess.Popen(["roslaunch", "turtlebot3_slam", "turtlebot3_slam.launch", "slam_methods:=gmapping"])
+
+            # 启动 gmapping.launch 子进程 || Nov25 debug: add "robot_state_publisher:=false" to debug (test)
+            self.gmapping_process = subprocess.Popen([
+                "roslaunch", 
+                "turtlebot3_slam", 
+                "turtlebot3_slam.launch", 
+                "slam_methods:=gmapping"
+                ])
         else:
             rospy.loginfo("Gmapping is already running.")
 
