@@ -5,15 +5,20 @@ import subprocess
 import signal
 from std_msgs.msg import String
 
+# Update: Nov 25, 2024
+# Need update:
+# "quit" command seems not useful now, because now use quit button to kill all, instead of kill one by one
+# if this doesn't use for long, please delete it.
+
 class GmappingController:
     def __init__(self):
-        # 初始化 ROS 节点
+        # Initilization
         rospy.init_node("gmapping_controller", anonymous=True)
         
-        # 存储 gmapping 进程
+        # gmapping process
         self.gmapping_process = None
         
-        # 订阅控制话题
+        # subscribe topic
         rospy.Subscriber("/control_gmapping", String, self.control_callback)
         
         rospy.loginfo("Gmapping Controller is running. Waiting for commands...")

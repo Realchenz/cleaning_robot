@@ -6,18 +6,21 @@ from vosk import Model, KaldiRecognizer
 import pyaudio
 import json
 
+# Update: Nov 25, 2024
+# Revise comments into English
+
 def voice_command():
     rospy.init_node('voice_command_node', anonymous=True)
     pub = rospy.Publisher('voice_commands', String, queue_size=10)
     
-    # 确保路径正确，获取当前目录并拼接模型路径
+    # the directory of the folder and files
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(current_dir, "vosk-model-small-en-us")
     
-    # 初始化 Vosk 模型
+    # Initialize Vosk Model
     model = Model(model_path)  # 确保此处传递的是 model 对象
 
-    # 设置 Kaldi 识别器
+    # Set Kaldi Recognizer
     recognizer = KaldiRecognizer(model, 16000)
 
     audio = pyaudio.PyAudio()

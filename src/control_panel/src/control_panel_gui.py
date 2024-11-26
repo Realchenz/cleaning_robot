@@ -11,12 +11,12 @@ import subprocess
 import time
 import os
 
-# Latest Update: Nov 24, 2024
+# Latest Update: Nov 25, 2024
+# Modify voice command logic, use "command + xxx" to make commands, to avoid accidental access
+
 # Need Updates:
-# 1. integrate route_follower in panel
-# 2. modify voice control logic, use multiple words to control (eg. start exploration)
-# 3. the explore will automatically stop after one hour, and automatically save the map.
-# 4. add all button voice command in panel_gui
+# 1. introduce more voice commands and make sure they are not common in daily words 
+# 2. need auto-mapping, the explore will automatically stop after one hour, and automatically save the map.
 
 class ControlPanelGUI:
     def __init__(self, root):
@@ -88,11 +88,6 @@ class ControlPanelGUI:
         tk.Button(button_frame, text="Finish Analyzing", command=self.stop_amcl).grid(row=3, column=4, padx=5, pady=5)
 
         # Buttons - Cleaning Functions (Follow the Route)
-        # tk.Label(button_frame, text="Cleaning Functions", font=("Arial", 12, "bold")).grid(row=4, column=0, columnspan=2, pady=5, sticky="w")
-        # tk.Button(button_frame, text="Start Cleaning", command=self.start_cleaning).grid(row=5, column=0, padx=5, pady=5)
-        # tk.Button(button_frame, text="Stop Cleaning", command=self.stop_cleaning).grid(row=5, column=1, padx=5, pady=5)
-
-        # 修改后的代码:
         tk.Label(button_frame, text="Cleaning Functions", font=("Helvetica", 12, "bold")).grid(row=4, column=0, columnspan=2, pady=5, sticky="w")
         tk.Button(button_frame, text="Start Cleaning", command=self.start_cleaning, font=("Helvetica", 10)).grid(row=5, column=0, padx=5, pady=5)
         tk.Button(button_frame, text="Stop Cleaning", command=self.stop_cleaning, font=("Helvetica", 10)).grid(row=5, column=1, padx=5, pady=5)
@@ -149,12 +144,12 @@ class ControlPanelGUI:
         self.voice_text.see("end")
         self.voice_text.configure(state="disabled")
 
-        if "start exploration" in command:
+        # don't use simple word, use words combination, to avoid accidental touch
+        if "command start exploration" in command:
             self.start_exploration()
-        elif "stop exploration" in command:
+        elif "command stop exploration" in command:
             self.stop_exploration()
-        # elif "quit program" in command:
-        #     self.quit_program()
+
 
     def start_slam(self):
         self.log("Starting SLAM...")

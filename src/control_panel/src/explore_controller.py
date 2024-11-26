@@ -5,6 +5,8 @@ import subprocess
 import signal
 from std_msgs.msg import String
 
+# Latest Update: Nov 25, 2024
+
 class ExploreController:
     def __init__(self):
         rospy.init_node("explore_controller", anonymous=True)

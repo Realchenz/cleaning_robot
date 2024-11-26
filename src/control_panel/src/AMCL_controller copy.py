@@ -6,25 +6,23 @@ import os
 from std_msgs.msg import String
 
 # UPDATE: Nov22, 2024
-# Use sweep/route_map_server to control AMCL
-# Because AMCL needs map_server
+# Use sweep/route_map_server to control AMC, because AMCL needs map_server.
 # Also use RVIZ to see the work
 
 class RouteController:
     def __init__(self):
-        # 初始化 ROS 节点
+        # Initialize ROS node
         rospy.init_node("route_controller", anonymous=True)
         
-        # 存储进程
+        # store process
         self.route_process = None
         
-        # 订阅控制话题 
+        # subscribe topic
         rospy.Subscriber("/control_amcl", String, self.control_callback)
         
         rospy.loginfo("Route Controller is running. Waiting for commands...")
 
     def control_callback(self, msg):
-        # 修改为匹配GUI发送的命令
         if msg.data == "start_amcl":
             self.start_route()
         elif msg.data == "stop_amcl":
@@ -56,7 +54,7 @@ class RouteController:
         if self.route_process is not None:
             rospy.loginfo("Stopping route map server...")
             try:
-                # 发送终止信号给进程组
+                # send termination signal to process (发送终止信号给进程组)
                 self.route_process.send_signal(signal.SIGINT)
                 self.route_process.wait(timeout=5)
                 rospy.loginfo("Route map server stopped successfully")

@@ -8,6 +8,29 @@ import cv2
 import time
 import matplotlib.pyplot as plt
 
+"""
+THIS IS THE (2) SECOND STEP SCRIPT IN CLEANING MODULE
+THIS IS A UTILITY SCRIPT
+
+FUNCTION:
+This is a utility script for robot cleaning coverage path planning. It subscribes 
+to ROS map data and generates an efficient cleaning path while avoiding obstacles.
+
+Key functions include:
+1. Subscribe to ROS map topic (/map) and process occupancy grid data
+2. Convert map to three-value representation (obstacle/unvisited/visited)
+3. Generate sampling points for coverage path planning
+4. Create obstacle-avoiding connections between path points  
+5. Save planned path and visualization results
+6. Generate debug information and map visualizations
+
+The script serves as the foundation (step 0) of the cleaning module by providing
+the basic path planning functionality needed for automated cleaning operations.
+"""
+
+## Update: Nov 25, 2024
+## Modify comments into English
+
 class MapData:
     OBSTACLE = -1    # black point, means obstacles and other things
     UNVISITED = 0    # red point, the place has not cleaned (reached)
@@ -17,45 +40,47 @@ class CoveragePathPlanner:
     def __init__(self):
         rospy.init_node('coverage_path_planner', anonymous=True)
         
-        # Parameter Settings (参数设置)
-        self.robot_radius = 0.2      # The r of the robot (机器人半径)
-        self.sweep_width = 0.4       # The width of cleaning (清扫宽度)
-        self.grid_resolution = 0.05  # 栅格分辨率
-        self.SAMPLING_INTERVAL = 5   # 采样间隔（每5个格子取一个点）
+        # Parameter Settings 
+        self.robot_radius = 0.2      # The r of the robot 
+        self.sweep_width = 0.4       # The width of cleaning 
+        self.grid_resolution = 0.05  # The resolution of the grid (栅格)
+        self.SAMPLING_INTERVAL = 5   # Sampling interval (采样间隔, 每5个格子取一个点）
         
-        # 地图信息
+        # Map information
         self.map_origin_x = 0
         self.map_origin_y = 0
         self.map_resolution = 0.05
         self.map_height = 0
         self.map_width = 0
         
-        # 地图数据
+        # Map data
         self.map_array = None
         self.processed_map = None
         self.path_points = []
         
-        # 创建目录
+        # Create directory
         script_dir = os.path.dirname(os.path.abspath(__file__))
         self.path_dir = os.path.join(script_dir, "pathfiles")
         self.debug_dir = os.path.join(script_dir, "debug")
         os.makedirs(self.path_dir, exist_ok=True)
         os.makedirs(self.debug_dir, exist_ok=True)
         
-        # 订阅地图话题
+        # Subscribe map topic
         self.map_sub = rospy.Subscriber("/map", OccupancyGrid, self.map_callback)
         rospy.loginfo("Coverage Path Planner initialized")
 
     def map_callback(self, map_data):
-        """处理地图数据并进行路径规划"""
-        # 保存地图信息
+        """
+        Process map data and perform route planning
+        """
+        # save map information
         self.map_origin_x = map_data.info.origin.position.x
         self.map_origin_y = map_data.info.origin.position.y
         self.map_resolution = map_data.info.resolution
         self.map_height = map_data.info.height
         self.map_width = map_data.info.width
         
-        # 将地图转换为numpy数组
+        # convert map to numpy arrays
         self.map_array = np.array(map_data.data).reshape(
             map_data.info.height, map_data.info.width)
             
@@ -63,41 +88,40 @@ class CoveragePathPlanner:
                      f"Resolution: {self.map_resolution}, "
                      f"Origin: ({self.map_origin_x}, {self.map_origin_y})")
         
-        # 进行路径规划
+        # Perform Path Planning
         self.plan_coverage_path()
 
     def preprocess_map(self, map_array):
-        """将ROS地图转换为三值地图，并考虑安全距离"""
+        """Convert the ROS map to a three-value map, taking into account the safety distance"""
         rospy.loginfo("Preprocessing map...")
         processed_map = np.full_like(map_array, MapData.OBSTACLE, dtype=np.int8)
         
-        # 设置可行区域
+        # Set feasible area
         processed_map[map_array == 0] = MapData.UNVISITED
         
-        # 考虑安全距离的膨胀处理
+        # Expansion processing considering safety distance
         safety_kernel_size = int(2.0 * self.robot_radius / self.grid_resolution)
         safety_kernel = np.ones((safety_kernel_size, safety_kernel_size), np.uint8)
         
-        # 对障碍物进行膨胀，标记安全区域
+        # Inflate obstacles and mark safe areas
         obstacle_map = (processed_map == MapData.OBSTACLE).astype(np.uint8)
         dilated_obstacles = cv2.dilate(obstacle_map, safety_kernel, iterations=1)
         
-        # 更新地图
+        # Updated Maps
         processed_map[dilated_obstacles == 1] = MapData.OBSTACLE
         
-        # 保存为类成员变量，供其他函数使用
+        # Save as a class member variable for use by other functions
         self.processed_map = processed_map
         
-        # 保存处理后的地图可视化
+        # Save the processed map visualization
         self.save_processed_map_visualization(processed_map)
         
         return processed_map
 
     def save_processed_map_visualization(self, processed_map):
-        """保存处理后的地图可视化"""
+        """Save the processed map visualization"""
         plt.figure(figsize=(12, 12))
-        
-        # 创建显示用的地图
+
         display_map = np.full_like(processed_map, fill_value=1.0, dtype=float)
         display_map[processed_map == MapData.OBSTACLE] = 0.8
         
@@ -110,13 +134,13 @@ class CoveragePathPlanner:
         plt.close()
 
     def grid_to_world(self, grid_x, grid_y):
-        """将栅格坐标转换为世界坐标"""
+        """Convert grid coordinates to world coordinates"""
         world_x = grid_x * self.map_resolution + self.map_origin_x
         world_y = grid_y * self.map_resolution + self.map_origin_y
         return world_x, world_y
 
     def get_line_points(self, x1, y1, x2, y2):
-        """使用Bresenham算法获取线段上的所有点"""
+        """Using Bresenham's algorithm to get all points on a line segment"""
         points = []
         dx = abs(x2 - x1)
         dy = abs(y2 - y1)
@@ -147,7 +171,7 @@ class CoveragePathPlanner:
         return points
 
     def line_crosses_obstacle(self, point1, point2):
-        """检查两点之间的连线是否穿过障碍物"""
+        """Check if the line between two points passes through an obstacle"""
         x1, y1 = point1['grid_x'], point1['grid_y']
         x2, y2 = point2['grid_x'], point2['grid_y']
         
@@ -161,13 +185,13 @@ class CoveragePathPlanner:
         return False
 
     def generate_path_points(self, processed_map):
-        """生成采样后的路径点序列"""
+        """Generate a sequence of sampled path points"""
         rospy.loginfo("Generating path points...")
         path_points = []
         height, width = processed_map.shape
         point_id = 0
         
-        # 使用采样间隔生成路径点
+        # Generate waypoints using sampling interval
         for x in range(0, width, self.SAMPLING_INTERVAL):
             if x >= width:
                 break
@@ -191,7 +215,7 @@ class CoveragePathPlanner:
         return path_points
 
     def find_valid_connections(self, path_points):
-        """找出所有有效的连接，确保每个点只被访问一次"""
+        """Find all valid connections and ensure that each node is visited only once"""
         connections = []
         visited = set()
         
@@ -203,7 +227,7 @@ class CoveragePathPlanner:
             best_next_point = None
             best_next_idx = None
             
-            # 找到最近的未访问点
+            # Find the nearest unvisited point
             for i, point in enumerate(path_points):
                 if i in visited:
                     continue
@@ -223,7 +247,7 @@ class CoveragePathPlanner:
                     best_next_idx = i
             
             if best_next_point is None:
-                # 如果找不到下一个点，从剩余未访问点中选择一个新的起点
+                # If the next point cannot be found, choose a new starting point from the remaining unvisited points
                 unvisited = set(range(len(path_points))) - visited
                 if unvisited:
                     next_start_idx = min(unvisited)
@@ -240,26 +264,26 @@ class CoveragePathPlanner:
         return connections
 
     def are_adjacent(self, point1, point2):
-        """判断两个点是否相邻"""
+        """Determine whether two points are adjacent"""
         dx = abs(point1['grid_x'] - point2['grid_x'])
         dy = abs(point1['grid_y'] - point2['grid_y'])
         return (dx == self.SAMPLING_INTERVAL and dy == 0) or (dx == 0 and dy == self.SAMPLING_INTERVAL)
 
     def visualize_plan(self, processed_map, path_points):
-        """生成规划结果的可视化图片"""
+        """Generate a visualization of the planning results"""
         plt.figure(figsize=(12, 12))
         
-        # 创建显示用的地图
+        # create the map for visualization
         display_map = np.full_like(processed_map, fill_value=1.0, dtype=float)
         display_map[processed_map == MapData.OBSTACLE] = 0.8
         
         plt.imshow(display_map, cmap='gray')
         
-        # 绘制路径点
+        # draw path points
         for point in path_points:
             plt.scatter(point['grid_x'], point['grid_y'], c='red', s=30)
         
-        # 绘制连接
+        # draw connections
         connections = self.find_valid_connections(path_points)
         for point1, point2 in connections:
             plt.arrow(point1['grid_x'], point1['grid_y'],
@@ -278,25 +302,25 @@ class CoveragePathPlanner:
         rospy.loginfo(f"Saved path visualization to {plot_file}")
 
     def plan_coverage_path(self):
-        """主路径规划函数"""
+        """Main Path Planning Function"""
         rospy.loginfo("Starting coverage path planning...")
         
-        # 1. 预处理地图
+        # 1. Preprocess the map
         processed_map = self.preprocess_map(self.map_array)
         
-        # 2. 生成路径点
+        # 2. Generate path points
         self.path_points = self.generate_path_points(processed_map)
         
-        # 3. 生成可视化图片
+        # 3. Generate visualization images
         self.visualize_plan(processed_map, self.path_points)
         
-        # 4. 保存路径
+        # 4. Save the path
         self.save_path(processed_map)
         
         rospy.loginfo("Path planning completed")
 
     def save_path(self, processed_map):
-        """保存规划的路径和地图数据"""
+        """Save Path and Maps"""
         if not self.path_points:
             rospy.logwarn("No path points to save")
             return

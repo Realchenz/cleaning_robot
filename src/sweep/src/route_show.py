@@ -6,42 +6,80 @@ from visualization_msgs.msg import Marker, MarkerArray
 from geometry_msgs.msg import Point
 from std_msgs.msg import ColorRGBA
 
+
+"""
+THIS IS THE (3) THIRD STEP SCRIPT IN CLEANING MODULE
+THIS IS A UTILITY SCRIPT
+
+FUNCTION:
+This is a visualization utility script that displays the planned cleaning path
+in ROS visualization tool (RViz). It provides real-time visualization of:
+
+1. Path points with different status:
+   - Unvisited points (red)
+   - Visited points (green) 
+   - Obstacle points (black)
+
+2. Path connections:
+   - Shows directional arrows between adjacent points
+   - Visualizes the planned cleaning sequence
+   - Indicates movement direction with arrow markers
+
+3. Dynamic updates:
+   - Loads the latest path plan from YAML files
+   - Updates visualization at 1Hz
+   - Uses persistent publishing (latch=True) for stable display
+
+4. Visualization features:
+   - Efficient obstacle point sampling for clearer view
+   - Color-coded status representation
+   - Configurable point sizes and connection styles
+   - Frame-based visualization in ROS map coordinate system
+"""
+
+## Latest Update: Nov 25
+## Modify comments and use English only
+
+## Need updates:
+## Need determine the relationship between route_plan, to think whether this script should modify to a simpler one
+
+
 class MapData:
-    OBSTACLE = -1    # 障碍物点
-    UNVISITED = 0    # 未访问的路径点
-    VISITED = 1      # 已访问的路径点
+    OBSTACLE = -1    # Obstacle points (Black)
+    UNVISITED = 0    # Unvisited points (Red)
+    VISITED = 1      # Visited points (Green)
 
 class PointDisplay:
-    OBSTACLE_COLOR = ColorRGBA(0.0, 0.0, 0.0, 0.8)    # 黑色
-    UNVISITED_COLOR = ColorRGBA(1.0, 0.0, 0.0, 0.8)   # 红色
-    VISITED_COLOR = ColorRGBA(0.0, 1.0, 0.0, 0.8)     # 绿色
+    OBSTACLE_COLOR = ColorRGBA(0.0, 0.0, 0.0, 0.8)    # Black
+    UNVISITED_COLOR = ColorRGBA(1.0, 0.0, 0.0, 0.8)   # Red
+    VISITED_COLOR = ColorRGBA(0.0, 1.0, 0.0, 0.8)     # Green
     POINT_SIZE = 0.1  # 点的大小
 
 class RouteVisualizer:
     def __init__(self):
         rospy.init_node('route_visualizer', anonymous=True)
         
-        # 数据存储
+        # store the data
         self.map_data = None
         self.path_points = []
-        self.current_point_id = 0  # 当前访问点的ID
+        self.current_point_id = 0  # the ID now access
         
-        # 发布器（使用latch=True确保消息持续存在）
+        # Publisher (use latch=True to ensure message persistence)
         self.points_pub = rospy.Publisher('/path_visualization', MarkerArray, queue_size=1, latch=True)
         self.connection_pub = rospy.Publisher('/path_connections', MarkerArray, queue_size=1, latch=True)
         
-        # 加载路径文件
+        # load
         self.path_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pathfiles")
         if not os.path.exists(self.path_dir):
             os.makedirs(self.path_dir)
         self.load_latest_path()
         
-        # 定时发布
+        # timer
         self.timer = rospy.Timer(rospy.Duration(1.0), self.publish_visualizations)
         rospy.loginfo("Route visualizer initialized")
 
     def load_latest_path(self):
-        """加载最新的路径文件"""
+        """Load the latest path file"""
         try:
             path_files = [f for f in os.listdir(self.path_dir) 
                          if f.startswith('coverage_path_') and f.endswith('.yaml')]
@@ -63,14 +101,17 @@ class RouteVisualizer:
             rospy.logerr(f"Error loading path file: {str(e)}")
 
     def are_adjacent(self, point1, point2):
-        """判断两个点是否相邻"""
-        sampling_interval = self.path_points[0].get('sampling_interval', 5)  # 默认值5
+        """Determine whether two points are adjacent"""
+        sampling_interval = self.path_points[0].get('sampling_interval', 5)  # Default value is 5
         dx = abs(point1['grid_x'] - point2['grid_x'])
         dy = abs(point1['grid_y'] - point2['grid_y'])
         return (dx == sampling_interval and dy == 0) or (dx == 0 and dy == sampling_interval)
 
     def find_valid_connections(self, points):
-        """找出所有有效的连接"""
+        """
+        Find All Valid Connections
+        Same logic in route_plan
+        """
         connections = []
         visited = set()
         
@@ -85,7 +126,7 @@ class RouteVisualizer:
             best_next_point = None
             best_next_idx = None
             
-            # 找到最近的未访问点
+            # Find the nearest unvisited point
             for i, point in enumerate(points):
                 if i in visited:
                     continue
@@ -102,7 +143,7 @@ class RouteVisualizer:
                     best_next_idx = i
             
             if best_next_point is None:
-                # 如果找不到下一个点，从剩余未访问点中选择一个新的起点
+                # If the next point cannot be found, choose a new starting point from the remaining unvisited points
                 unvisited = set(range(len(points))) - visited
                 if unvisited:
                     next_start_idx = min(unvisited)
@@ -119,14 +160,14 @@ class RouteVisualizer:
         return connections
 
     def publish_visualizations(self, event):
-        """发布可视化信息"""
+        """Publishing visual information"""
         if not self.map_data or not self.path_points:
             return
 
-        # 创建点标记
+        # Create point markers
         point_markers = MarkerArray()
         
-        # 添加路径点
+        # Adding Waypoints
         for i, point in enumerate(self.path_points):
             marker = Marker()
             marker.header.frame_id = "map"
@@ -143,7 +184,7 @@ class RouteVisualizer:
             
             marker.scale.x = marker.scale.y = marker.scale.z = PointDisplay.POINT_SIZE
             
-            # 根据点的状态设置颜色
+            # Set the color according to the state of the point
             if point.get('status', 0) == MapData.VISITED:
                 marker.color = PointDisplay.VISITED_COLOR
             else:
@@ -151,15 +192,15 @@ class RouteVisualizer:
             
             point_markers.markers.append(marker)
         
-        # 添加障碍物点
+        # Add obstacle points
         obstacle_id = len(self.path_points)
         map_array = self.map_data['array']
         resolution = self.map_data['resolution']
         origin_x = self.map_data['origin_x']
         origin_y = self.map_data['origin_y']
         
-        # 采样显示障碍物点（每隔几个点显示一个）
-        sampling = 5  # 可以调整这个值来改变障碍物点的密度
+        # Sample obstacle points (one every few points)
+        sampling = 5  # adjust this value to change the density of obstacle points.
         for y in range(0, len(map_array), sampling):
             for x in range(0, len(map_array[0]), sampling):
                 if map_array[y][x] == MapData.OBSTACLE:
@@ -182,12 +223,12 @@ class RouteVisualizer:
                     point_markers.markers.append(marker)
                     obstacle_id += 1
 
-        # 发布点标记
+        # Publishing point tags
         if point_markers.markers:
             self.points_pub.publish(point_markers)
             rospy.loginfo_throttle(10, f"Published {len(point_markers.markers)} markers")
 
-        # 创建并发布连接线标记
+        # Create and publish connection line markers
         connections = self.find_valid_connections(self.path_points)
         connection_markers = MarkerArray()
         
@@ -200,7 +241,7 @@ class RouteVisualizer:
             marker.type = Marker.ARROW
             marker.action = Marker.ADD
             
-            # 设置起点和终点
+            # Set start and end point
             start = Point()
             start.x = start_point['world_x']
             start.y = start_point['world_y']
@@ -212,8 +253,8 @@ class RouteVisualizer:
             end.z = 0.0
             
             marker.points = [start, end]
-            marker.scale.x = 0.02  # 箭身宽度
-            marker.scale.y = 0.04  # 箭头宽度
+            marker.scale.x = 0.02  # Arrow width
+            marker.scale.y = 0.04  # Arrow head width
             marker.color = ColorRGBA(0.3, 0.3, 1.0, 0.8)  # 蓝色
             
             connection_markers.markers.append(marker)

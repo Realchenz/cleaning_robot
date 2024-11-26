@@ -5,12 +5,11 @@ import signal
 import os
 from std_msgs.msg import String
 
-# UPDATE: Nov22, 2024
-# Use sweep/route_map_server to control AMCL
-# Because AMCL needs map_server
-# Also use RVIZ to see the work
-
 # Update: Nov25, add state publish into this file, to debug of SLAM
+
+# UPDATE: Nov22, 2024
+# Use sweep/route_map_server to control AMCL, because AMCL needs map_server
+# Also use RVIZ to see the work
 
 class RouteController:
    def __init__(self):

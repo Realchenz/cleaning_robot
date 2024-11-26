@@ -4,16 +4,14 @@ import subprocess
 import signal
 from std_msgs.msg import String
 
-
+# Update: Nov 25, 2024
 
 class RouteFollowController:
     def __init__(self):
         rospy.init_node("route_follow_controller", anonymous=True)
         
-        # 存储进程
         self.route_follow_process = None
         
-        # 订阅控制话题
         rospy.Subscriber("/control_route_follow", String, self.control_callback)
         
         rospy.loginfo("Route Follow Controller is running. Waiting for commands...")

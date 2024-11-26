@@ -4,12 +4,19 @@
 
 This is a ROS-based autonomous cleaning robot that integrates indoor mapping, voice control, and innovative cleaning functionalities. This project features expandable modules, making it a valuable tool for research, education, and real-world applications.
 
+**Develope and Test Environment: ROS Noetic, Python3, Ubuntu 20.04.6**
+
 ### **Key Features**
 
 - **GUI Control Panel**: A user-friendly interface to manage all modules without command-line interaction.
 - **Voice Control**: Real-time voice recognition for hands-free operation.
 - **Mapping**: Efficient exploration and map saving using the Explore_Lite package.
 - **Cleaning**: Two cleaning modules for full-coverage path planning, including a fully self-designed solution.
+
+### **Develop Progress**
+
+- Proposal => V1 => **V2 (now)** => Final Version (of the semester)
+- Simulation Demo: [https://youtu.be/rqXiXsVubhQ?si=gXh5D5b1vyPDEKCA]()
 
 ---
 
