@@ -18,7 +18,30 @@ This is a ROS-based autonomous cleaning robot that integrates indoor mapping, vo
 - Proposal => V1 => **V2 (now)** => Final Version (of the semester)
 - Simulation Demo: [https://youtu.be/rqXiXsVubhQ?si=gXh5D5b1vyPDEKCA]()
 
----
+## Final Demo Setup: A Modular Network-Enabled Cleaning System
+
+For the final demonstration, we will replicate a realistic cleaning scenario in a controlled environment. The setup ensures seamless communication and modular scalability, simulating a robust system for future multi-robot collaboration.
+
+### Hardware Configuration
+
+* TurtleBot3 (Cleaning Robot)
+  * Role: A single cleaning robot performing mapping, exploration, and cleaning tasks.
+  * Connectivity: Communicates with the central system via the router's local network.
+* No Internet Access Local Network Router (Network Center)
+  * Role: Acts as the network center to establish a local LAN for communication.
+  * Features: Provides stable IP addresses for devices, enabling consistent communication across the network.
+* Computer with Linux OS (Computing Center and Control Terminal):
+  * Role: Acts as the central computing tower and the portable control panel
+
+    * Running the GUI control panel, represents portable control panel
+    * Managing mapping, exploration, and cleaning processes
+    * Collecting and visualizing data in real-time.
+
+### Benefits of the Setup
+
+* Flexibility: Easy to transport and test in various locations with no dependency on external networks.
+* Security: Local network ensures data is contained within the system, reducing security risks.
+* Scalability: Paves the way for testing more complex, multi-robot systems in the same architecture.
 
 ## **Getting Started**
 
@@ -43,6 +66,10 @@ To start the program:
 ```
 
 No additional commands are required—the GUI handles all controls.
+
+* Notes:
+  * Need set up IP settings for computer and turtlebot3
+
 
 ---
 
