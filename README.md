@@ -15,14 +15,14 @@ This is a ROS-based autonomous cleaning robot that integrates indoor mapping, vo
 
 ### **Develop Progress**
 
-- Proposal => V1 => **V2 (now)** => Final Version (of the semester)
+- Proposal => V1 => V2 => __Final Version of the Semester (Now)__
 - Simulation Demo: [https://youtu.be/rqXiXsVubhQ?si=gXh5D5b1vyPDEKCA]()
 
-## Final Demo Setup: A Modular Network-Enabled Cleaning System
+### Final Demo Setup: A Modular Network-Enabled Cleaning System
 
 For the final demonstration, we will replicate a realistic cleaning scenario in a controlled environment. The setup ensures seamless communication and modular scalability, simulating a robust system for future multi-robot collaboration.
 
-### Hardware Configuration
+**Hardware Configuration:**
 
 * TurtleBot3 (Cleaning Robot)
   * Role: A single cleaning robot performing mapping, exploration, and cleaning tasks.
@@ -32,12 +32,11 @@ For the final demonstration, we will replicate a realistic cleaning scenario in 
   * Features: Provides stable IP addresses for devices, enabling consistent communication across the network.
 * Computer with Linux OS (Computing Center and Control Terminal):
   * Role: Acts as the central computing tower and the portable control panel
-
     * Running the GUI control panel, represents portable control panel
     * Managing mapping, exploration, and cleaning processes
     * Collecting and visualizing data in real-time.
 
-### Benefits of the Setup
+**Benefits of the Setup:**
 
 * Flexibility: Easy to transport and test in various locations with no dependency on external networks.
 * Security: Local network ensures data is contained within the system, reducing security risks.
@@ -57,21 +56,37 @@ To start the program:
    roslaunch control_panel panel_sim.launch
 ```
 
+  No additional commands are required for simulation environment, this launch file handles all controls.
+
 2. **For Real Robot**:
 
-  Remember to set real IP settings in ~/.bashrc and update turtlebot3's settings
+  Remember to set real IP settings in ~/.bashrc and update turtlebot3's settings.
+
+  For Real Environment, you need to run roscore on PC firstly:
+
+```bash
+roscore
+```
+
+  Before bringup, if the environment has no Internet access, or no RTC module on turtlebot3, you need sync time.
+
+  For Real Environment, you need to ssh to turtlebot3 and bring up it secondly:
+
+```bash
+$ roslaunch turtlebot3_bringup turtlebot3_robot.launch
+```
+
+  After above instructions, you can now run the panel to start the program:
 
 ```bash
    roslaunch control_panel panel_real.launch
 ```
 
-No additional commands are required—the GUI handles all controls.
+  After running, you must do following to avoid data loss or hardware damage:
 
-* Notes:
-  * Need set up IP settings for computer and turtlebot3
-
-
----
+```bash
+sudo shutdown -h now
+```
 
 ## **System Architecture**
 
@@ -249,13 +264,6 @@ Note: The Cleaning Module I (CCPP) is not in branch `master`, please see its imp
 - Open-source the project to foster collaboration on smart cleaning robot innovations.
 - Create a tutorial for building autonomous cleaning robots step-by-step.
 - Expand the frontier exploration module with self-designed algorithms.
-
----
-
-## **Demo Videos**
-
-- Simulation in Gazebo demo will release soon.
-- Real world demo will release soon.
 
 ---
 
