@@ -14,13 +14,6 @@
   
   <!-- 加载机器人模型到参数服务器 -->
   <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
-  
-  <!-- robot state publisher -->
-  <!--
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
-      <param name="publish_frequency" type="double" value="50.0" />
-  </node>
-  -->
 
   <!-- 添加 joint_state_publisher | 用于发布关节状态 -->
   <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher">

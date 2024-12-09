@@ -37,7 +37,7 @@ class RouteFollowController:
                     stderr=subprocess.PIPE
                 )
                 rospy.loginfo("Route follow started successfully")
-  
+
             except Exception as e:
                 rospy.logerr(f"Failed to start route show: {e}")
         else:

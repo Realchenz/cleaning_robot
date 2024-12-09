@@ -22,6 +22,8 @@ class RouteController:
    def control_callback(self, msg):
        if msg.data == "start_amcl":
            self.start_route()
+       #elif msg.data == "start_amcl_v2":
+       #    self.start_route_v2()
        elif msg.data == "stop_amcl":
            self.stop_route()
        elif msg.data == "quit":
@@ -45,6 +47,23 @@ class RouteController:
                rospy.logerr(f"Failed to start route map server: {e}")
        else:
            rospy.loginfo("Route map server is already running.")
+
+   #def start_route_v2(self):
+   #    if self.route_process is None:
+   #        rospy.loginfo("Starting route_map_server using rosrun...")
+   #        try:
+   #            self.robot_state_pub = subprocess.Popen(["rosrun", "robot_state_publisher", "robot_state_publisher"])
+   #            self.route_process = subprocess.Popen(
+   #                ["rosrun", "sweep", "route_map_server_v2.py"],
+   #                stdout=subprocess.PIPE,
+   #                stderr=subprocess.PIPE
+   #            )
+   #            rospy.loginfo("Route map server started successfully")
+   #        except Exception as e:
+   #            rospy.logerr(f"Failed to start route map server: {e}")
+   #    else:
+   #        rospy.loginfo("Route map server is already running.")
+
 
    def stop_route(self):
        if self.route_process is not None:

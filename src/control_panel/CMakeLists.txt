@@ -111,7 +111,7 @@ catkin_package(
 catkin_install_python(PROGRAMS
   src/explore_controller.py
   src/move_base_controller.py
-  src/control_panel.py
+  src/control_panel_gui.py
   src/voice_vosk.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

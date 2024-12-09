@@ -17,6 +17,7 @@ import os
 # Need Updates:
 # 1. introduce more voice commands and make sure they are not common in daily words 
 # 2. need auto-mapping, the explore will automatically stop after one hour, and automatically save the map.
+# 3. (BUG) start_amcl_v2 cannot use, so temprarily use start_amcl for cleaning mode, and needs manually change
 
 class ControlPanelGUI:
     def __init__(self, root):
@@ -89,8 +90,9 @@ class ControlPanelGUI:
 
         # Buttons - Cleaning Functions (Follow the Route)
         tk.Label(button_frame, text="Cleaning Functions", font=("Helvetica", 12, "bold")).grid(row=4, column=0, columnspan=2, pady=5, sticky="w")
-        tk.Button(button_frame, text="Start Cleaning", command=self.start_cleaning, font=("Helvetica", 10)).grid(row=5, column=0, padx=5, pady=5)
-        tk.Button(button_frame, text="Stop Cleaning", command=self.stop_cleaning, font=("Helvetica", 10)).grid(row=5, column=1, padx=5, pady=5)
+        tk.Button(button_frame, text="Load Map", command=self.start_amcl, font=("Helvetica", 10)).grid(row=5, column=0, padx=5, pady=5)
+        tk.Button(button_frame, text="Start Cleaning", command=self.start_cleaning, font=("Helvetica", 10)).grid(row=5, column=1, padx=5, pady=5)
+        tk.Button(button_frame, text="Stop Cleaning", command=self.stop_cleaning, font=("Helvetica", 10)).grid(row=5, column=2, padx=5, pady=5)
 
 
         # Quit Program 按钮靠右对齐
@@ -150,7 +152,7 @@ class ControlPanelGUI:
         elif "command stop exploration" in command:
             self.stop_exploration()
 
-
+    ### MAPPING FUNCTIONS
     def start_slam(self):
         self.log("Starting SLAM...")
         self.hint("Button Pressed: Start SLAM")
@@ -186,6 +188,7 @@ class ControlPanelGUI:
         except Exception as e:
             self.log(f"Failed to save map: {e}")
 
+    ### ANALYZE ROUTE FUNCTIONS
     def start_amcl(self):
         self.log("Starting AMCL...")
         # 检查SLAM状态，如果在运行就提示错误
@@ -194,39 +197,6 @@ class ControlPanelGUI:
             return
         self.hint("Button Pressed: Start AMCL")
         self.control_amcl_pub.publish("start_amcl")
-
-    def stop_amcl(self):
-        self.log("Stopping AMCL...")
-        self.hint("Button Pressed: Stop AMCL")
-        # at same time stop route_show here
-        self.stop_route_show()  # 先停止route_show
-        self.control_amcl_pub.publish("stop_amcl")
-
-
-
-    def stop_robot(self):
-        self.log("Stopping Robot...")
-        stop_msg = Twist()
-        stop_msg.linear.x = 0.0
-        stop_msg.angular.z = 0.0
-        self.velocity_pub.publish(stop_msg)
-        self.cancel_pub.publish(GoalID())
-
-    def start_route_show(self):
-        self.control_route_show_pub.publish("start_show")
-        self.log("Starting route show...")
-
-    def stop_route_show(self):
-        self.control_route_show_pub.publish("stop_show")
-        self.log("Stopping route show...")
-
-    def refresh_route_show(self):
-        self.control_route_show_pub.publish("stop_show")
-        self.log("Stopping route show to refresh")
-        self.control_route_show_pub.publish("start_show")
-        self.log("Starting route show... Refresh complete.")
-
-
 
     def analyze_route(self):
         """调用route_plan.py进行路径规划"""
@@ -248,17 +218,30 @@ class ControlPanelGUI:
             self.log(f"Unexpected error during route analysis: {e}")
 
 
-    def quit_program(self):
-        self.log("Quitting Program...")
-        try:
-            subprocess.call(["rosnode", "kill", "-a"])  # 关闭所有ROS节点
-        except Exception as e:
-            self.log(f"Failed to kill ROS nodes: {e}")
-        rospy.signal_shutdown("User requested shutdown")
-        root.quit()
+    def start_route_show(self):
+        self.control_route_show_pub.publish("start_show")
+        self.log("Starting route show...")
+
+    def stop_route_show(self):
+        self.control_route_show_pub.publish("stop_show")
+        self.log("Stopping route show...")
+
+    def refresh_route_show(self):
+        self.control_route_show_pub.publish("stop_show")
+        self.log("Stopping route show to refresh")
+        self.control_route_show_pub.publish("start_show")
+        self.log("Starting route show... Refresh complete.")
+
+    def stop_amcl(self):   # stop amcl and stop analyzing function
+        self.log("Stopping AMCL...")
+        self.hint("Button Pressed: Stop AMCL")
+        # at same time stop route_show here
+        self.stop_route_show()  # 先停止route_show
+        self.control_amcl_pub.publish("stop_amcl")
 
 
-    # 添加控制函数
+
+    ### CONTROL FUNCTIONS
     def move_forward(self):
         """Move robot forward"""
         twist = Twist()
@@ -287,6 +270,25 @@ class ControlPanelGUI:
         self.velocity_pub.publish(twist)
         self.log("Turning right...")
 
+    def stop_robot(self):
+        self.log("Stopping Robot...")
+        stop_msg = Twist()
+        stop_msg.linear.x = 0.0
+        stop_msg.angular.z = 0.0
+        self.velocity_pub.publish(stop_msg)
+        self.cancel_pub.publish(GoalID())
+
+    
+    ### CLEANING FUNCTIONS
+    #def start_amcl_v2(self):
+    #    self.log("Starting AMCL...")
+    #    # 检查SLAM状态，如果在运行就提示错误
+    #    if self.check_slam_running==True:  # 需要添加检查函数
+    #        self.log("Please stop SLAM first")
+    #        return
+    #    self.hint("Button Pressed: Start AMCL")
+    #    self.control_amcl_pub.publish("start_amcl_v2")
+
     def start_cleaning(self):
         self.control_route_follow_pub.publish("start_route_follow")
         self.log("Starting route follow...")
@@ -297,6 +299,17 @@ class ControlPanelGUI:
     def stop_cleaning(self):
         self.control_route_follow_pub.publish("stop_route_follow")
         self.log("Stop route follow.")
+
+    ### QUIT PROGRAM FUNCTION
+    def quit_program(self):
+        self.log("Quitting Program...")
+        try:
+            subprocess.call(["rosnode", "kill", "-a"])  # CLOSE ALL ROS NODES
+        except Exception as e:
+            self.log(f"Failed to kill ROS nodes: {e}")
+        rospy.signal_shutdown("User requested shutdown")
+        root.quit()
+
 
 
 if __name__ == "__main__":

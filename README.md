@@ -143,6 +143,34 @@ Note: The Cleaning Module I (CCPP) is not in branch `master`, please see its imp
   2. **Start Exploration**: Begins autonomous exploration using `explore.launch`.
 
   - <img src="attached_files/V2/project_resources/slam_2_start_exploration.png" alt="GUI Screenshot" width="300">
+
+  Visualization Markers:
+
+  🔵 Blue Points (Frontier Exploration Markers)
+
+  Technical Meaning: Valid frontier points indicating unexplored boundaries
+  Simple Description: These points show the boundary between mapped and unmapped areas - like a border between known and unknown territory on a map. They are the potential areas for the robot to explore next.
+
+  🔴 Red Points (Frontier Exploration Markers, Not showned on demo)
+
+  Technical Meaning: Blacklisted frontier points that failed exploration attempts
+  Simple Description: These are "no-go" areas that the robot tried to reach before but couldn't. Think of them like marking an X on a map where there might be obstacles or unreachable spots.
+
+  🟢 Green Spheres (Frontier Exploration Markers)
+
+  Technical Meaning: Initial points of frontiers, with sphere size inversely proportional to frontier cost
+  Simple Description: These balls mark the starting points of unexplored areas. The bigger the ball, the more interesting that area is for exploration - like highlighting the most promising spots on a treasure map.
+
+  🟣 Pink Path (Path Planning Markers, 0.05 width)
+
+  Technical Meaning: Global plan from DWAPlannerROS (/move_base/DWAPlannerROS/global_plan)
+  Simple Description: This is like the overall route plan on a GPS - it shows the complete path the robot plans to take from its current location to its destination.
+
+  💛 Yellow Path (Path Planning Markers, 0.03 width)
+
+  Technical Meaning: Local plan from DWAPlannerROS (/move_base/DWAPlannerROS/local_plan)
+  Simple Description: This is like watching your next few steps carefully - it shows the immediate path the robot plans to take while paying attention to nearby obstacles and adjusting its movement.
+
   - <img src="attached_files/V2/project_resources/slam_3_explore2.png" alt="GUI Screenshot" width="300">
   - <img src="attached_files/V2/project_resources/slam_3_explore3.png" alt="GUI Screenshot" width="300">
 
@@ -260,7 +288,7 @@ Note: The Cleaning Module I (CCPP) is not in branch `master`, please see its imp
 
 ## **Future Plans**
 
-- Refine and debug the Route Follow submodule.
+- Optimize the Route Follow submodule.
 - Open-source the project to foster collaboration on smart cleaning robot innovations.
 - Create a tutorial for building autonomous cleaning robots step-by-step.
 - Expand the frontier exploration module with self-designed algorithms.
