@@ -16,7 +16,7 @@ This is a ROS-based autonomous cleaning robot that integrates indoor mapping, vo
 ### **Develop Progress**
 
 - Proposal => V1 => V2 => __Final Version of the Semester (Now)__
-- Simulation Demo: [https://youtu.be/rqXiXsVubhQ?si=gXh5D5b1vyPDEKCA]()
+- Simulation Demo: https://youtu.be/rqXiXsVubhQ?si=gXh5D5b1vyPDEKCA
 
 ### Final Demo Setup: A Modular Network-Enabled Cleaning System
 
