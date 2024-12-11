@@ -1,10 +1,48 @@
 # **Smart Cleaning Robot**
 
-## **Overview**
+This is the final report of our project, including brief introduction 
+
+## **Brief Introduction and Project Overview**
 
 This is a ROS-based autonomous cleaning robot that integrates indoor mapping, voice control, and innovative cleaning functionalities. This project features expandable modules, making it a valuable tool for research, education, and real-world applications.
 
+
+
+简要说明项目背景及重要性，引出研究内容和工作目标。
+
+项目背景
+目标和意义
+报告的组织结构
+
+
+
+## **Problem Statement**
+
+
+明确问题和初始目标。
+
+问题描述：具体描述需要解决的问题。
+初始目标：团队最初制定的目标和期望。
+
+
+## **Relevant Literature**
+提供相关文献或背景资料支持，说明项目的理论基础和参考信息。
+
+相关研究：引用支持项目的关键文献。
+技术参考：与本项目相关的工具、框架或方法概述。
+
+## **Story behinds porjects**
+
+
+## **Project Details**
+
 **Develope and Test Environment: ROS Noetic, Python3, Ubuntu 20.04.6**
+
+### **Contributors**
+
+- **Pang Liu**: Panel Module, Voice Control, Cleaning Module II.
+- **Zhenxu Chen**: Mapping Module, Cleaning Module I.
+
 
 ### **Key Features**
 
@@ -13,10 +51,9 @@ This is a ROS-based autonomous cleaning robot that integrates indoor mapping, vo
 - **Mapping**: Efficient exploration and map saving using the Explore_Lite package.
 - **Cleaning**: Two cleaning modules for full-coverage path planning, including a fully self-designed solution.
 
-### **Develop Progress**
+### **Demonstration**
 
-- Proposal => V1 => V2 => __Final Version of the Semester (Now)__
-- Simulation Demo: https://youtu.be/rqXiXsVubhQ?si=gXh5D5b1vyPDEKCA
+- Demo Link: https://youtu.be/rqXiXsVubhQ?si=gXh5D5b1vyPDEKCA
 
 ### Final Demo Setup: A Modular Network-Enabled Cleaning System
 
@@ -295,7 +332,3 @@ Note: The Cleaning Module I (CCPP) is not in branch `master`, please see its imp
 
 ---
 
-## **Contributors**
-
-- **Pang Liu**: Panel Module, Voice Control, Cleaning Module II.
-- **Zhenxu Chen**: Mapping Module, Cleaning Module I.
