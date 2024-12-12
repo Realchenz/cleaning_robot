@@ -11,7 +11,10 @@ import subprocess
 import time
 import os
 
-# Latest Update: Nov 25, 2024
+# Update: Dec 11, 2024
+# Add position set function
+
+# Update: Nov 25, 2024
 # Modify voice command logic, use "command + xxx" to make commands, to avoid accidental access
 
 # Need Updates:
@@ -48,7 +51,7 @@ class ControlPanelGUI:
         # Voice Recognition Title and Box
         voice_frame = tk.Frame(root)
         voice_frame.pack(side="top", fill="x", padx=5, pady=5)
-        tk.Label(voice_frame, text="Voice Recognition:", font=("Arial", 12, "bold")).pack(anchor="w")
+        tk.Label(voice_frame, text="Voice Recognition: (Say 'Command' before button name)", font=("Arial", 12, "bold")).pack(anchor="w")
         self.voice_text = tk.Text(voice_frame, height=4, wrap="word", bg="#f4f4f4")
         self.voice_text.pack(fill="x")
         self.voice_text.insert("1.0", "Voice Recognition Output:\n")
@@ -74,7 +77,7 @@ class ControlPanelGUI:
 
         # Buttons - Mapping Functions
         tk.Label(button_frame, text="Mapping Functions:", font=("Arial", 12, "bold")).grid(row=0, column=0, columnspan=2, pady=5, sticky="w")
-        tk.Button(button_frame, text="Start SLAM", command=self.start_slam).grid(row=1, column=0, padx=5, pady=5)
+        tk.Button(button_frame, text="Open Map", command=self.start_slam).grid(row=1, column=0, padx=5, pady=5)
         tk.Button(button_frame, text="Start Exploration", command=self.start_exploration).grid(row=1, column=1, padx=5, pady=5)
         tk.Button(button_frame, text="Stop Exploration", command=self.stop_exploration).grid(row=1, column=2, padx=5, pady=5)
         tk.Button(button_frame, text="Save Map", command=self.save_map).grid(row=1, column=3, padx=5, pady=5)
@@ -85,14 +88,15 @@ class ControlPanelGUI:
         tk.Button(button_frame, text="Load Map", command=self.start_amcl).grid(row=3, column=0, padx=5, pady=5)
         tk.Button(button_frame, text="Anaylyze Route", command=self.analyze_route).grid(row=3, column=1, padx=5, pady=5)
         tk.Button(button_frame, text="Show Route", command=self.start_route_show).grid(row=3, column=2, padx=5, pady=5)
-        tk.Button(button_frame, text="Refresh Route", command=self.refresh_route_show).grid(row=3, column=3, padx=5, pady=5)
-        tk.Button(button_frame, text="Finish Analyzing", command=self.stop_amcl).grid(row=3, column=4, padx=5, pady=5)
+        # tk.Button(button_frame, text="Refresh Route", command=self.refresh_route_show).grid(row=3, column=3, padx=5, pady=5)
+        tk.Button(button_frame, text="Finish Analyzing", command=self.stop_amcl).grid(row=3, column=3, padx=5, pady=5)
 
         # Buttons - Cleaning Functions (Follow the Route)
         tk.Label(button_frame, text="Cleaning Functions", font=("Helvetica", 12, "bold")).grid(row=4, column=0, columnspan=2, pady=5, sticky="w")
         tk.Button(button_frame, text="Load Map", command=self.start_amcl, font=("Helvetica", 10)).grid(row=5, column=0, padx=5, pady=5)
-        tk.Button(button_frame, text="Start Cleaning", command=self.start_cleaning, font=("Helvetica", 10)).grid(row=5, column=1, padx=5, pady=5)
-        tk.Button(button_frame, text="Stop Cleaning", command=self.stop_cleaning, font=("Helvetica", 10)).grid(row=5, column=2, padx=5, pady=5)
+        tk.Button(button_frame, text="Start Cleaning", command=self.start_cleaning, font=("Helvetica", 10)).grid(row=5, column=2, padx=5, pady=5)
+        tk.Button(button_frame, text="Stop Cleaning", command=self.stop_cleaning, font=("Helvetica", 10)).grid(row=5, column=3, padx=5, pady=5)
+        tk.Button(button_frame, text="Position Set", command=self.position_set).grid(row=5, column=1, padx=5, pady=5)
 
 
         # Quit Program 按钮靠右对齐
@@ -146,11 +150,122 @@ class ControlPanelGUI:
         self.voice_text.see("end")
         self.voice_text.configure(state="disabled")
 
-        # don't use simple word, use words combination, to avoid accidental touch
-        if "command start exploration" in command:
+        # 修复后的条件判断
+        if any(phrase in command for phrase in [
+            "command start exploration",
+            "comments start exploration",
+            "commander start exploration",
+            "come and start exploration",
+            "common start exploration"
+        ]):
             self.start_exploration()
-        elif "command stop exploration" in command:
+        elif any(phrase in command for phrase in [
+            "command stop exploration",
+            "comments stop exploration",
+            "commander stop exploration",
+            "come and stop exploration",
+            "common stop exploration"
+        ]):
             self.stop_exploration()
+        elif any(phrase in command for phrase in [
+            "command open map",
+            "comments open map",
+            "commander open map",
+            "come and open map",
+            "common open map"
+        ]):
+            self.start_slam()
+        elif any(phrase in command for phrase in [
+            "command save map",
+            "comments save map",
+            "commander save map",
+            "come and save map",
+            "common save map"
+        ]):
+            self.save_map()
+        elif any(phrase in command for phrase in [
+            "command finish mapping",
+            "comments finish mapping",
+            "commander finish mapping",
+            "come and finish mapping",
+            "common finish mapping"
+        ]):
+            self.stop_slam()
+        elif any(phrase in command for phrase in [
+            "command load map",
+            "comments load map",
+            "commander load map",
+            "come and load map",
+            "common load map"
+        ]):
+            self.start_amcl()
+        elif any(phrase in command for phrase in [
+            "command analyze route",
+            "comments analyze route",
+            "commander analyze route",
+            "come and analyze route",
+            "common analyze route",
+            "command analyze root",
+            "comments analyze root",
+            "commander analyze root",
+            "come and analyze root",
+            "common analyze root",
+            "command analyze route",
+            "command analysis route"
+        ]):
+            self.analyze_route()
+        elif any(phrase in command for phrase in [
+            "command show route",
+            "comments show route",
+            "commander show route",
+            "come and show route",
+            "common show route",
+            "command show root",
+            "comments show root",
+            "commander show root",
+            "come and show root",
+            "common show root"
+        ]):
+            self.start_route_show()
+        elif any(phrase in command for phrase in [
+            "command finish analyzing",
+            "comments finish analyzing",
+            "commander finish analyzing",
+            "come and finish analyzing",
+            "common finish analyzing",
+            "command finish analysis"
+        ]):
+            self.stop_amcl()
+        elif any(phrase in command for phrase in [
+            "command start cleaning",
+            "comments start cleaning",
+            "commander start cleaning",
+            "come and start cleaning",
+            "common start cleaning"
+        ]):
+            self.start_cleaning()
+        elif any(phrase in command for phrase in [
+            "command stop cleaning",
+            "comments stop cleaning",
+            "commander stop cleaning",
+            "come and stop cleaning",
+            "common stop cleaning"
+        ]):
+            self.stop_cleaning()
+        elif any(phrase in command for phrase in [
+            "command position set",
+            "comments position set",
+            "commander position set",
+            "come and position set",
+            "common position set"
+        ]):
+            self.position_set()
+
+
+
+
+
+
 
     ### MAPPING FUNCTIONS
     def start_slam(self):
@@ -238,7 +353,71 @@ class ControlPanelGUI:
         # at same time stop route_show here
         self.stop_route_show()  # 先停止route_show
         self.control_amcl_pub.publish("stop_amcl")
+        
+    def position_set(self):
+        """
+        # turn around 360 degrees
+        # move forward 0.3 m
+        # turn around 360 degrees
+        # move back 0.3 m
+        """
+        # Turn around 360 degrees (clockwise)
+        twist = Twist()
+        twist.angular.z = -0.5  # Angular velocity for turning, negative for clockwise
+        duration = 2 * 3.14159 / abs(twist.angular.z)  # Time to complete a full circle
+        self.log("Turning around 360 degrees clockwise...")
+        start_time = time.time()
+        while time.time() - start_time < duration:
+            self.velocity_pub.publish(twist)
+            rospy.sleep(0.1)
 
+        # Stop turning
+        twist.angular.z = 0.0
+        self.velocity_pub.publish(twist)
+        rospy.sleep(0.5)
+
+        # Move forward 0.3 meters
+        twist.linear.x = 0.2  # Forward velocity in m/s
+        distance = 0.3
+        duration = distance / abs(twist.linear.x)
+        self.log("Moving forward 0.3 meters...")
+        start_time = time.time()
+        while time.time() - start_time < duration:
+            self.velocity_pub.publish(twist)
+            rospy.sleep(0.1)
+
+        # Stop moving forward
+        twist.linear.x = 0.0
+        self.velocity_pub.publish(twist)
+        rospy.sleep(0.5)
+
+        # Turn around 360 degrees (counterclockwise)
+        twist.angular.z = 0.5  # Angular velocity for turning, positive for counterclockwise
+        self.log("Turning around 360 degrees counterclockwise...")
+        start_time = time.time()
+        while time.time() - start_time < duration:
+            self.velocity_pub.publish(twist)
+            rospy.sleep(0.1)
+
+        # Stop turning
+        twist.angular.z = 0.0
+        self.velocity_pub.publish(twist)
+        rospy.sleep(0.5)
+
+        # Move backward 0.3 meters
+        twist.linear.x = -0.2  # Backward velocity in m/s
+        self.log("Moving backward 0.3 meters...")
+        start_time = time.time()
+        while time.time() - start_time < duration:
+            self.velocity_pub.publish(twist)
+            rospy.sleep(0.1)
+
+        # Stop moving backward
+        twist.linear.x = 0.0
+        self.velocity_pub.publish(twist)
+        rospy.sleep(0.5)
+
+        self.log("Position set complete.")
 
 
     ### CONTROL FUNCTIONS

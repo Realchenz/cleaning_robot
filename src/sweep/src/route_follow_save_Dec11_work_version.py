@@ -32,8 +32,14 @@ class RouteFollower:
         self.SAMPLING_INTERVAL = 5      # sampling interval, keep same with route_plan
         self.MAX_REACHABLE_DISTANCE = 5.0  # 最大可达距离
         
-        # 定义读取路径
+        # 分别定义读取和保存的路径
         self.read_path_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pathfiles")
+        self.save_path_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pathfiles_route_follow")
+        
+        # 确保保存目录存在
+        if not os.path.exists(self.save_path_dir):
+            os.makedirs(self.save_path_dir)
+            rospy.loginfo(f"Created new directory: {self.save_path_dir}")
         
         # Store the data
         self.path_points = []
@@ -57,15 +63,15 @@ class RouteFollower:
         rospy.loginfo("Route follower initialized")
 
     def load_latest_path(self):
-        """Load the latest path file and initialize all points as unvisited"""
+        """Load the latest path file from read directory and check status file in save directory"""
         try:
             rospy.loginfo("Loading latest path file...")
             path_files = [f for f in os.listdir(self.read_path_dir) 
-                        if f.startswith('coverage_path_') and f.endswith('.yaml')]
+                         if f.startswith('coverage_path_') and f.endswith('.yaml')]
             if not path_files:
                 rospy.logwarn("No path files found")
                 return False
-                    
+                
             latest_file = sorted(path_files)[-1]
             path_file = os.path.join(self.read_path_dir, latest_file)
             rospy.loginfo(f"Loading path from {path_file}")
@@ -73,11 +79,23 @@ class RouteFollower:
             with open(path_file, 'r') as f:
                 data = yaml.safe_load(f)
                 self.path_points = data['path_points']
-                
-            # 初始化所有点为未访问状态
-            for point in self.path_points:
-                point['status'] = MapData.UNVISITED
-                
+            
+            # 检查新目录中是否存在状态文件并加载
+            status_file = os.path.join(self.save_path_dir, "path_status.yaml")
+            if os.path.exists(status_file):
+                rospy.loginfo(f"Loading status from {status_file}")
+                with open(status_file, 'r') as f:
+                    status_data = yaml.safe_load(f)
+                    # 更新点的状态
+                    for status in status_data['points_status']:
+                        for point in self.path_points:
+                            if point['id'] == status['id']:
+                                point['status'] = status['status']
+            else:
+                rospy.loginfo("No previous status file found, initializing all points as unvisited")
+                for point in self.path_points:
+                    point['status'] = MapData.UNVISITED
+                    
             self.build_path_connections()
             rospy.loginfo(f"Loaded {len(self.path_points)} path points")
             return True
@@ -85,7 +103,7 @@ class RouteFollower:
         except Exception as e:
             rospy.logerr(f"Error loading path file: {str(e)}")
             return False
-        
+
     def build_path_connections(self):
         """Build path connection relationship, consistent with route_plan"""
         rospy.loginfo("Building path connections...")
@@ -440,15 +458,37 @@ class RouteFollower:
         return True, "Localization accuracy sufficient"
 
     def update_point_status(self, point_id, new_status=MapData.VISITED):
-        """Update point status in memory"""
+        """Update point status"""
         for point in self.path_points:
             if point['id'] == point_id:
                 point['status'] = new_status
                 self.publish_point_status()
+                self.save_points_status()
                 rospy.loginfo(f"Updated point {point_id} status to {new_status}")
                 return True
         rospy.logwarn(f"Point {point_id} not found")
         return False
+
+    def save_points_status(self):
+        """Save waypoint status to the new directory"""
+        status_file = os.path.join(self.save_path_dir, "path_status.yaml")
+        status_data = {
+            'timestamp': rospy.get_time(),
+            'points_status': [
+                {
+                    'id': point['id'],
+                    'status': point['status']
+                }
+                for point in self.path_points
+            ]
+        }
+        
+        try:
+            with open(status_file, 'w') as f:
+                yaml.dump(status_data, f)
+            rospy.loginfo(f"Saved points status to {status_file}")
+        except Exception as e:
+            rospy.logwarn(f"Error saving status file: {str(e)}")
 
     def follow_route(self):
         """Main control loop"""
@@ -459,7 +499,7 @@ class RouteFollower:
         rospy.sleep(2.0)  # 等待AMCL初始化
         
         consecutive_failures = 0  # 添加连续失败计数器
-        MAX_FAILURES = 1  # 最大连续失败次数
+        MAX_FAILURES = 3  # 最大连续失败次数
         
         while not rospy.is_shutdown():
             # Check positioning

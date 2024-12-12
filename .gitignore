@@ -1,4 +1,6 @@
 build/
 devel/
-src/sweep/src
 maps/
+src/sweep/src/pathfiles/
+src/sweep/pathfiles_route_follow/
+src/sweep/src/debug/

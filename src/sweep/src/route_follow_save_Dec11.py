@@ -14,6 +14,15 @@ import numpy as np
 from geometry_msgs.msg import Point, PoseStamped
 
 
+# Update: Dec 10, 2024
+# Debug: The real robot cannot move bug (always say "no accessible point issue")
+# Solve: Found the problem is because of the LiDAR datapoints, that 0 value cause the problem
+
+# Update: Nov 25, 2024
+# Integrated into panel
+# Need Update: 
+# Need manually switch RViz topic to route_status_visualization
+
 class MapData:
     OBSTACLE = -1    # obstacles points, black
     UNVISITED = 0    # unvisited, red
@@ -24,16 +33,13 @@ class RouteFollower:
         rospy.init_node('route_follower', anonymous=True)
         
         # Modified Settings
-        self.POSITION_TOLERANCE = 0.15   # 位置容差
+        self.POSITION_TOLERANCE = 0.15   # 增加位置容差
         self.ANGLE_TOLERANCE = 0.1      # angle tolerance (角度误差)
         self.LINEAR_SPEED = 0.2         # linear speed
         self.ANGULAR_SPEED = 0.3        # angular speed
-        self.SAFETY_DISTANCE = 0.2      # 安全距离
+        self.SAFETY_DISTANCE = 0.2      # 减小安全距离
         self.SAMPLING_INTERVAL = 5      # sampling interval, keep same with route_plan
-        self.MAX_REACHABLE_DISTANCE = 5.0  # 最大可达距离
-        
-        # 定义读取路径
-        self.read_path_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pathfiles")
+        self.MAX_REACHABLE_DISTANCE = 5.0  # 新增: 最大可达距离
         
         # Store the data
         self.path_points = []
@@ -53,39 +59,50 @@ class RouteFollower:
         self.amcl_sub = rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.amcl_callback)
         self.laser_sub = rospy.Subscriber('/scan', LaserScan, self.laser_callback)
         
+        # Load Files
+        self.path_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pathfiles")
+        if not os.path.exists(self.path_dir):
+            os.makedirs(self.path_dir)
+        
         self.load_latest_path()
         rospy.loginfo("Route follower initialized")
 
     def load_latest_path(self):
-        """Load the latest path file and initialize all points as unvisited"""
+        """Load the latest path file and reset all point states"""
         try:
             rospy.loginfo("Loading latest path file...")
-            path_files = [f for f in os.listdir(self.read_path_dir) 
-                        if f.startswith('coverage_path_') and f.endswith('.yaml')]
+            path_files = [f for f in os.listdir(self.path_dir) 
+                         if f.startswith('coverage_path_') and f.endswith('.yaml')]
             if not path_files:
                 rospy.logwarn("No path files found")
                 return False
-                    
+                
             latest_file = sorted(path_files)[-1]
-            path_file = os.path.join(self.read_path_dir, latest_file)
+            path_file = os.path.join(self.path_dir, latest_file)
             rospy.loginfo(f"Loading path from {path_file}")
             
             with open(path_file, 'r') as f:
                 data = yaml.safe_load(f)
                 self.path_points = data['path_points']
+                # reset all points to unvisited
+                for point in self.path_points:
+                    point['status'] = MapData.UNVISITED
+                # rebuild the connections
+                self.build_path_connections()
+                rospy.loginfo(f"Loaded {len(self.path_points)} path points")
                 
-            # 初始化所有点为未访问状态
-            for point in self.path_points:
-                point['status'] = MapData.UNVISITED
+            # Delete the old status file if it exists
+            status_file = os.path.join(self.path_dir, "path_status.yaml")
+            if os.path.exists(status_file):
+                os.remove(status_file)
+                rospy.loginfo("Deleted old status file")
                 
-            self.build_path_connections()
-            rospy.loginfo(f"Loaded {len(self.path_points)} path points")
             return True
                 
         except Exception as e:
             rospy.logerr(f"Error loading path file: {str(e)}")
             return False
-        
+
     def build_path_connections(self):
         """Build path connection relationship, consistent with route_plan"""
         rospy.loginfo("Building path connections...")
@@ -223,6 +240,7 @@ class RouteFollower:
         self.current_pose = (position.x, position.y, yaw)
         rospy.logdebug(f"Current pose updated: {self.current_pose}")
 
+
     def laser_callback(self, scan_msg):
         """LiDAR callback"""
         if not self.current_pose:
@@ -238,6 +256,16 @@ class RouteFollower:
                 y = self.current_pose[1] + r * math.sin(angle + self.current_pose[2])
                 self.obstacle_points.append((x, y))
             angle += scan_msg.angle_increment
+
+        # 添加调试信息
+        rospy.loginfo(f"Laser scan info:")
+        rospy.loginfo(f"  angle_min: {scan_msg.angle_min}")
+        rospy.loginfo(f"  angle_max: {scan_msg.angle_max}")
+        rospy.loginfo(f"  angle_increment: {scan_msg.angle_increment}")
+        rospy.loginfo(f"  range_min: {scan_msg.range_min}")
+        rospy.loginfo(f"  range_max: {scan_msg.range_max}")
+        rospy.loginfo(f"  ranges length: {len(scan_msg.ranges)}")
+
 
     def check_path_safety(self, target_point):
         """Check if the path to the destination is safe"""
@@ -327,6 +355,8 @@ class RouteFollower:
             marker.scale.z = 0.01  # Arrow height
             
             # Arrow color
+            marker.color = ColorRGBA(0.3, 0.3, 1.0, 0.8) #
+            # Arrow color (继续上面的代码)
             marker.color = ColorRGBA(0.3, 0.3, 1.0, 0.8) # blue
             
             point_markers.markers.append(marker)
@@ -440,15 +470,37 @@ class RouteFollower:
         return True, "Localization accuracy sufficient"
 
     def update_point_status(self, point_id, new_status=MapData.VISITED):
-        """Update point status in memory"""
+        """Update point status"""
         for point in self.path_points:
             if point['id'] == point_id:
                 point['status'] = new_status
                 self.publish_point_status()
+                self.save_points_status()
                 rospy.loginfo(f"Updated point {point_id} status to {new_status}")
                 return True
         rospy.logwarn(f"Point {point_id} not found")
         return False
+
+    def save_points_status(self):
+        """Save waypoint status"""
+        status_file = os.path.join(self.path_dir, "path_status.yaml")
+        status_data = {
+            'timestamp': rospy.get_time(),
+            'points_status': [
+                {
+                    'id': point['id'],
+                    'status': point['status']
+                }
+                for point in self.path_points
+            ]
+        }
+        
+        try:
+            with open(status_file, 'w') as f:
+                yaml.dump(status_data, f)
+            rospy.loginfo("Saved points status to file")
+        except Exception as e:
+            rospy.logwarn(f"Error saving status file: {str(e)}")
 
     def follow_route(self):
         """Main control loop"""
@@ -457,9 +509,6 @@ class RouteFollower:
         
         # 确保初始化完成
         rospy.sleep(2.0)  # 等待AMCL初始化
-        
-        consecutive_failures = 0  # 添加连续失败计数器
-        MAX_FAILURES = 1  # 最大连续失败次数
         
         while not rospy.is_shutdown():
             # Check positioning
@@ -472,20 +521,12 @@ class RouteFollower:
             # 如果没有当前目标点，寻找新的目标点
             if self.current_path_index is None:
                 rospy.loginfo("Looking for next target point...")
-                # 首先寻找最近的可达点作为新的起点
                 next_point = self.find_nearest_accessible_point()
-                
                 if not next_point:
-                    if consecutive_failures >= MAX_FAILURES:
-                        rospy.loginfo("Maximum consecutive failures reached. Mission complete!")
-                        break
-                    consecutive_failures += 1
-                    rate.sleep()
-                    continue
-                    
-                consecutive_failures = 0
+                    rospy.loginfo("No more accessible points. Mission complete!")
+                    break
                 self.current_path_index = next_point['id']
-                rospy.loginfo(f"Found nearest point as new starting point: {self.current_path_index}")
+                rospy.loginfo(f"New target point selected: {self.current_path_index}")
             
             # 获取当前目标点信息
             current_target = None
@@ -502,8 +543,8 @@ class RouteFollower:
             # 检查路径安全性
             if not self.check_path_safety(current_target):
                 rospy.logwarn("Path to target blocked")
+                self.update_point_status(current_target['id'], MapData.OBSTACLE)
                 self.current_path_index = None
-                consecutive_failures += 1
                 continue
             
             # 发布当前路径
@@ -511,33 +552,31 @@ class RouteFollower:
             
             # 移动到目标点
             if self.move_to_point(current_target):
-                # 成功到达目标点
-                self.update_point_status(current_target['id'], MapData.VISITED)
-                consecutive_failures = 0
+                # 更新点状态
+                self.update_point_status(current_target['id'])
                 
-                # 尝试获取路径规划中的下一个点
-                next_planned_point = self.get_next_planned_point(current_target['id'])
+                # 优先获取规划路径上的下一个点
+                next_point = self.get_next_planned_point(current_target['id'])
                 
-                if next_planned_point:
-                    # 如果有计划路径上的下一个点，继续沿着路径执行
-                    self.current_path_index = next_planned_point['id']
-                    rospy.loginfo(f"Following planned path to point: {self.current_path_index}")
+                if not next_point:
+                    # 如果没有规划路径上的下一个点，寻找最近的可达点
+                    next_point = self.find_nearest_accessible_point()
+                
+                if next_point:
+                    self.current_path_index = next_point['id']
+                    rospy.loginfo(f"Moving to next point: {next_point['id']}")
                 else:
-                    # 如果没有计划路径上的下一个点，重置current_path_index以寻找新的最近点
-                    self.current_path_index = None
-                    rospy.loginfo("Current path segment completed, will find new nearest point")
+                    rospy.loginfo("No more points to visit")
+                    break
             else:
                 rospy.logwarn("Failed to reach target point")
-                consecutive_failures += 1
-                if consecutive_failures >= MAX_FAILURES:
-                    self.update_point_status(current_target['id'], MapData.OBSTACLE)
+                self.update_point_status(current_target['id'], MapData.OBSTACLE)
                 self.current_path_index = None
             
             rate.sleep()
         
         self.stop_robot()
         rospy.loginfo("Route following completed")
-
 
     def run(self):
         """Run Path Follower"""
@@ -556,7 +595,7 @@ class RouteFollower:
         except Exception as e:
             self.stop_robot()
             rospy.logerr(f"Route following error: {str(e)}")
-            raise
+            raise 
 
 if __name__ == "__main__":
     try:
