@@ -30,7 +30,7 @@ This is a ROS-based autonomous cleaning robot that integrates indoor mapping, vo
 ### Demonstration
 
 - Demo Link: https://jeffliulab.github.io/youtube_links/ros119.html
-  *Note: If the link expires, you can find youtube channel "JeffLiuLab" and see all related videos.*
+  *Note: If the link expires, you can find youtube channel "@CSR_LAB" or search "Jeff Liu Lab" and see all related videos.*
 
 ### Problem Statement and Original Objectives
 
